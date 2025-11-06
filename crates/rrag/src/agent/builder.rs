@@ -1,6 +1,7 @@
 //! Agent builder pattern
 
 use super::{Agent, AgentConfig, ConversationMode, ToolExecutor};
+use super::memory::{MemoryConfig, AgentMemoryManager};
 use crate::error::RragResult;
 use rsllm::tools::{Tool, ToolRegistry};
 use rsllm::Client;
@@ -10,6 +11,7 @@ pub struct AgentBuilder {
     llm_client: Option<Client>,
     tools: Vec<Box<dyn Tool>>,
     config: AgentConfig,
+    memory_config: Option<MemoryConfig>,
 }
 
 impl AgentBuilder {
@@ -19,6 +21,7 @@ impl AgentBuilder {
             llm_client: None,
             tools: Vec::new(),
             config: AgentConfig::default(),
+            memory_config: None,
         }
     }
 
@@ -82,6 +85,12 @@ impl AgentBuilder {
         self
     }
 
+    /// Set memory configuration (enables persistent memory)
+    pub fn with_memory(mut self, memory_config: MemoryConfig) -> Self {
+        self.memory_config = Some(memory_config);
+        self
+    }
+
     /// Build the agent
     pub fn build(self) -> RragResult<Agent> {
         let llm_client = self.llm_client.ok_or_else(|| crate::error::RragError::Agent {
@@ -102,7 +111,13 @@ impl AgentBuilder {
 
         let tool_executor = ToolExecutor::new(registry);
 
-        Agent::new(llm_client, tool_executor, self.config)
+        // Build with or without persistent memory
+        if let Some(memory_config) = self.memory_config {
+            let memory_manager = AgentMemoryManager::new(memory_config);
+            Agent::new_with_memory(llm_client, tool_executor, memory_manager, self.config)
+        } else {
+            Agent::new(llm_client, tool_executor, self.config)
+        }
     }
 }
 

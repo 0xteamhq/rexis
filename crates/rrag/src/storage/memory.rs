@@ -3,7 +3,7 @@
 //! This module provides the core Memory trait that abstracts over different storage backends.
 //! All storage implementations (in-memory, database, etc.) implement this trait.
 
-use crate::{RragError, RragResult};
+use crate::RragResult;
 use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;

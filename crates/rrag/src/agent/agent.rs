@@ -1,9 +1,10 @@
 //! Core Agent implementation
 
 use super::{AgentConfig, ConversationMemory, ConversationMode, ToolExecutor};
+use super::memory::AgentMemoryManager;
 use crate::error::RragResult;
 use rsllm::{ChatMessage, ChatResponse, Client};
-use tracing::{debug, error, info, warn};
+use tracing::{debug, error, info};
 
 /// Agent that can use tools and maintain conversation
 pub struct Agent {
@@ -13,29 +14,54 @@ pub struct Agent {
     /// Tool executor
     tool_executor: ToolExecutor,
 
-    /// Conversation memory (for stateful mode)
-    memory: ConversationMemory,
+    /// Legacy conversation memory (for backward compatibility)
+    legacy_memory: ConversationMemory,
+
+    /// New persistent memory manager (optional)
+    memory_manager: Option<AgentMemoryManager>,
 
     /// Agent configuration
     config: AgentConfig,
 }
 
 impl Agent {
-    /// Create a new agent
+    /// Create a new agent (legacy constructor - uses in-memory ConversationMemory)
     pub fn new(
         llm_client: Client,
         tool_executor: ToolExecutor,
         config: AgentConfig,
     ) -> RragResult<Self> {
-        let mut memory = ConversationMemory::with_max_length(config.max_conversation_length);
+        let mut legacy_memory = ConversationMemory::with_max_length(config.max_conversation_length);
 
         // Add system prompt
-        memory.add_message(ChatMessage::system(config.system_prompt.clone()));
+        legacy_memory.add_message(ChatMessage::system(config.system_prompt.clone()));
 
         Ok(Self {
             llm_client,
             tool_executor,
-            memory,
+            legacy_memory,
+            memory_manager: None,
+            config,
+        })
+    }
+
+    /// Create a new agent with persistent memory
+    pub fn new_with_memory(
+        llm_client: Client,
+        tool_executor: ToolExecutor,
+        memory_manager: AgentMemoryManager,
+        config: AgentConfig,
+    ) -> RragResult<Self> {
+        let mut legacy_memory = ConversationMemory::with_max_length(config.max_conversation_length);
+
+        // Add system prompt to legacy memory (fallback)
+        legacy_memory.add_message(ChatMessage::system(config.system_prompt.clone()));
+
+        Ok(Self {
+            llm_client,
+            tool_executor,
+            legacy_memory,
+            memory_manager: Some(memory_manager),
             config,
         })
     }
@@ -53,7 +79,7 @@ impl Agent {
             debug!(input = %input, "Processing user query");
         }
 
-        // Prepare conversation based on mode
+        // Prepare conversation based on mode and memory system
         let mut conversation = match self.config.conversation_mode {
             ConversationMode::Stateless => {
                 // Fresh conversation: system prompt + user message
@@ -63,9 +89,20 @@ impl Agent {
                 ]
             }
             ConversationMode::Stateful => {
-                // Continue existing conversation
-                self.memory.add_message(ChatMessage::user(input.clone()));
-                self.memory.to_messages()
+                // Use new memory system if available, otherwise legacy
+                if let Some(ref memory_manager) = self.memory_manager {
+                    // Add user message to persistent memory
+                    memory_manager
+                        .add_conversation_message(ChatMessage::user(input.clone()))
+                        .await?;
+
+                    // Get full conversation history
+                    memory_manager.get_conversation_messages().await?
+                } else {
+                    // Legacy in-memory conversation
+                    self.legacy_memory.add_message(ChatMessage::user(input.clone()));
+                    self.legacy_memory.to_messages()
+                }
             }
         };
 
@@ -95,7 +132,7 @@ impl Agent {
 
                     // Add tool results to conversation
                     for result in tool_results {
-                        if let rsllm::MessageContent::Text(ref content) = result.content {
+                        if let crate::rsllm::MessageContent::Text(ref content) = result.content {
                             debug!(tool_result = %content, "Tool execution completed");
                         }
                         conversation.push(result);
@@ -115,7 +152,15 @@ impl Agent {
 
             // Update memory in stateful mode
             if self.config.conversation_mode == ConversationMode::Stateful {
-                self.memory.add_message(ChatMessage::assistant(response.content.clone()));
+                if let Some(ref memory_manager) = self.memory_manager {
+                    // Persist to new memory system
+                    memory_manager
+                        .add_conversation_message(ChatMessage::assistant(response.content.clone()))
+                        .await?;
+                } else {
+                    // Legacy in-memory
+                    self.legacy_memory.add_message(ChatMessage::assistant(response.content.clone()));
+                }
             }
 
             return Ok(response.content);
@@ -162,13 +207,27 @@ impl Agent {
     }
 
     /// Reset conversation (clears history, keeps system prompt)
-    pub fn reset(&mut self) {
-        self.memory.clear();
+    pub async fn reset(&mut self) -> RragResult<()> {
+        if let Some(ref memory_manager) = self.memory_manager {
+            memory_manager.clear_conversation().await?;
+        } else {
+            self.legacy_memory.clear();
+        }
+        Ok(())
     }
 
-    /// Get conversation history
+    /// Get conversation history (legacy - uses in-memory only)
     pub fn get_conversation(&self) -> &[ChatMessage] {
-        self.memory.get_messages()
+        self.legacy_memory.get_messages()
+    }
+
+    /// Get conversation history from persistent memory (async)
+    pub async fn get_conversation_async(&self) -> RragResult<Vec<ChatMessage>> {
+        if let Some(ref memory_manager) = self.memory_manager {
+            memory_manager.get_conversation_messages().await
+        } else {
+            Ok(self.legacy_memory.to_messages())
+        }
     }
 
     /// Get agent configuration
@@ -179,5 +238,15 @@ impl Agent {
     /// Get mutable configuration
     pub fn config_mut(&mut self) -> &mut AgentConfig {
         &mut self.config
+    }
+
+    /// Get access to the memory manager (if using persistent memory)
+    pub fn memory(&self) -> Option<&AgentMemoryManager> {
+        self.memory_manager.as_ref()
+    }
+
+    /// Get mutable access to the memory manager (if using persistent memory)
+    pub fn memory_mut(&mut self) -> Option<&mut AgentMemoryManager> {
+        self.memory_manager.as_mut()
     }
 }

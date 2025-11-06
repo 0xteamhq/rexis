@@ -19,10 +19,11 @@ mod agent;
 mod builder;
 mod config;
 mod executor;
-mod memory;
+mod legacy_memory;
+pub mod memory; // New memory system
 
 pub use agent::Agent;
 pub use builder::AgentBuilder;
 pub use config::{AgentConfig, ConversationMode};
 pub use executor::ToolExecutor;
-pub use memory::ConversationMemory;
+pub use legacy_memory::ConversationMemory; // Keep for backward compatibility
