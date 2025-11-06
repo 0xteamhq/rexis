@@ -2,6 +2,10 @@
 
 use super::config::MemoryConfig;
 use super::conversation::{generate_session_id, ConversationMemoryStore};
+use super::working::WorkingMemory;
+use super::semantic::SemanticMemory;
+use super::episodic::EpisodicMemory;
+use super::shared::SharedKnowledgeBase;
 use crate::error::RragResult;
 use crate::storage::Memory;
 use crate::rsllm::ChatMessage; // Use re-exported rsllm type
@@ -20,6 +24,18 @@ pub struct AgentMemoryManager {
 
     /// Conversation memory
     conversation: ConversationMemoryStore,
+
+    /// Working memory (lazy-initialized)
+    working: Option<WorkingMemory>,
+
+    /// Semantic memory (lazy-initialized)
+    semantic: Option<SemanticMemory>,
+
+    /// Episodic memory (lazy-initialized)
+    episodic: Option<EpisodicMemory>,
+
+    /// Shared knowledge base (lazy-initialized)
+    shared: Option<SharedKnowledgeBase>,
 
     /// Configuration
     config: MemoryConfig,
@@ -50,8 +66,56 @@ impl AgentMemoryManager {
             agent_id: config.agent_id.clone(),
             session_id,
             conversation,
+            working: None,
+            semantic: None,
+            episodic: None,
+            shared: None,
             config,
         }
+    }
+
+    /// Get or initialize working memory
+    pub fn working(&mut self) -> &mut WorkingMemory {
+        if self.working.is_none() {
+            self.working = Some(WorkingMemory::new(
+                self.storage.clone(),
+                self.session_id.clone(),
+            ));
+        }
+        self.working.as_mut().unwrap()
+    }
+
+    /// Get or initialize semantic memory
+    pub fn semantic(&mut self) -> &mut SemanticMemory {
+        if self.semantic.is_none() {
+            self.semantic = Some(SemanticMemory::new(
+                self.storage.clone(),
+                self.agent_id.clone(),
+            ));
+        }
+        self.semantic.as_mut().unwrap()
+    }
+
+    /// Get or initialize episodic memory
+    pub fn episodic(&mut self) -> &mut EpisodicMemory {
+        if self.episodic.is_none() {
+            self.episodic = Some(EpisodicMemory::new(
+                self.storage.clone(),
+                self.agent_id.clone(),
+            ));
+        }
+        self.episodic.as_mut().unwrap()
+    }
+
+    /// Get or initialize shared knowledge base
+    pub fn shared(&mut self) -> &mut SharedKnowledgeBase {
+        if self.shared.is_none() {
+            self.shared = Some(SharedKnowledgeBase::new(
+                self.storage.clone(),
+                self.agent_id.clone(),
+            ));
+        }
+        self.shared.as_mut().unwrap()
     }
 
     /// Get agent ID
@@ -158,6 +222,10 @@ impl Clone for AgentMemoryManager {
                 self.config.max_conversation_length,
                 self.config.persist_conversations,
             ),
+            working: None, // Lazy-initialize on clone
+            semantic: None,
+            episodic: None,
+            shared: None,
             config: self.config.clone(),
         }
     }
