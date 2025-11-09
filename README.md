@@ -1,259 +1,488 @@
-# 🚀 LEVAL RAG Workspace
+# Rexis - Rust RAG Framework
 
-**The most comprehensive, production-ready RAG (Retrieval-Augmented Generation) toolkit in Rust.**
+[![Crates.io](https://img.shields.io/crates/v/rrag.svg)](https://crates.io/crates/rrag)
+[![Documentation](https://docs.rs/rrag/badge.svg)](https://docs.rs/rrag)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Rust](https://img.shields.io/badge/rust-1.70%2B-orange.svg)](https://www.rust-lang.org/)
+[![CI](https://github.com/0xteamhq/rexis/workflows/CI/badge.svg)](https://github.com/0xteamhq/rexis/actions)
 
-Build end-to-end RAG systems with multi-provider LLM support, advanced retrieval strategies, and production-grade infrastructure.
+**Rexis** is a modern, production-ready Retrieval-Augmented Generation (RAG) framework built in Rust, featuring multi-provider LLM support, graph-based agent orchestration, and flexible memory backends.
 
 ## 🌟 Features
 
-### 🤖 **Multi-Provider LLM Support**
+- **🤖 Multi-Provider LLM Support** - Unified interface for OpenAI, Anthropic Claude, and Ollama
+- **🛠️ Type-Safe Tool Calling** - Automatic JSON schema generation with `#[tool]` macro
+- **🧠 Intelligent Agents** - LangChain-style agents with conversation memory and tool execution
+- **📊 Graph Orchestration** - Complex multi-agent workflows with `rgraph`
+- **💾 Flexible Storage** - Multiple memory backends (in-memory, database with experimental support)
+- **🔍 RAG Pipeline** - Document processing, retrieval, and context-aware generation
+- **📝 Structured Logging** - Production-ready observability with `tracing`
+- **⚡ High Performance** - Async/await throughout, zero-copy where possible
 
-- **OpenAI**: GPT-4, GPT-3.5-Turbo with function calling
-- **Anthropic Claude**: Via OpenRouter (Sonnet, Opus, Haiku)
-- **Local Models**: Ollama integration for complete privacy
-- **Azure OpenAI**: Enterprise-grade deployment
+## 📦 Crates
 
-### 🔍 **Advanced Retrieval**
+This repository is organized as a workspace containing:
 
-- **Semantic Search**: Vector similarity with multiple embedding models
-- **Hybrid Search**: Combine semantic and keyword search
-- **Re-ranking**: Advanced relevance scoring algorithms
-- **Multi-modal**: Text, images, and structured data retrieval
+| Crate | Description | Version |
+|-------|-------------|---------|
+| [`rsllm`](crates/rsllm) | Multi-provider LLM client with tool calling | [![Crates.io](https://img.shields.io/crates/v/rsllm.svg)](https://crates.io/crates/rsllm) |
+| [`rrag`](crates/rrag) | RAG framework with agents and memory | [![Crates.io](https://img.shields.io/crates/v/rrag.svg)](https://crates.io/crates/rrag) |
+| [`rgraph`](crates/rgraph) | Graph-based agent orchestration | [![Crates.io](https://img.shields.io/crates/v/rrag-graph.svg)](https://crates.io/crates/rrag-graph) |
+| [`rsllm-macros`](crates/rsllm-macros) | Procedural macros for `#[tool]` | [![Crates.io](https://img.shields.io/crates/v/rsllm-macros.svg)](https://crates.io/crates/rsllm-macros) |
+| [`schemars`](crates/schemars) | Vendored JSON Schema (OpenAI-compatible) | - |
 
-### 💾 **Flexible Storage**
+## 🚀 Quick Start
 
-- **Vector Databases**: Qdrant, Chroma, Weaviate integration
-- **Traditional DBs**: PostgreSQL, SQLite support with vector extensions
-- **Local Storage**: File-based storage for development and testing
+### Installation
 
-### 📊 **Production Ready**
+Add to your `Cargo.toml`:
 
-- **HTTP API Server**: RESTful API with WebSocket streaming
-- **CLI Tools**: Complete command-line interface for administration
-- **Monitoring**: Comprehensive observability and metrics
-- **Evaluation**: Built-in RAG quality assessment framework
-
-## 🏗️ **Architecture**
-
-This workspace consists of specialized crates that work together to provide a complete RAG solution:
-
-```
-leval-rag-workspace/
-├── crates/
-│   ├── rsllm/              🤖 LLM client library
-│   ├── rag-core/           🧠 RAG orchestration engine
-│   ├── rag-retrieval/      🔍 Document search and retrieval
-│   ├── rag-embeddings/     📊 Vector embedding management
-│   ├── rag-storage/        💾 Vector database abstraction
-│   ├── rag-indexing/       📇 Document processing and chunking
-│   ├── rag-eval/           📈 Evaluation and benchmarking
-│   ├── rag-server/         🌐 HTTP API server
-│   └── rag-cli/            ⚡ Command-line interface
-├── examples/               📚 End-to-end RAG examples
-├── benchmarks/             🏃 Performance benchmarks
-└── docs/                   📖 Comprehensive documentation
+```toml
+[dependencies]
+rrag = "0.1"
+rsllm = "0.1"
+tokio = { version = "1", features = ["full"] }
 ```
 
-## 🚀 **Quick Start**
-
-### **Prerequisites**
-
-```bash
-# Install Rust
-curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
-
-# Install Ollama for local models (optional)
-curl -fsSL https://ollama.ai/install.sh | sh
-ollama pull llama3.1
-```
-
-### **Basic RAG System**
+### Basic Example
 
 ```rust
-use rag_core::{RagSystem, RagConfig};
-use rag_storage::SqliteStorage;
-use rsllm::Client;
+use rrag::agent::{AgentBuilder, ConversationMode};
+use rsllm::{LLMClient, Provider};
+use rsllm_macros::tool;
+use serde::{Deserialize, Serialize};
+use schemars::JsonSchema;
+
+// Define a tool with automatic schema generation
+#[derive(JsonSchema, Serialize, Deserialize)]
+pub struct CalculatorParams {
+    /// First number to add
+    pub a: f64,
+    /// Second number to add
+    pub b: f64,
+}
+
+#[tool(description = "Add two numbers together")]
+fn calculator(params: CalculatorParams) -> Result<f64, String> {
+    Ok(params.a + params.b)
+}
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    // Configure the RAG system
-    let config = RagConfig::builder()
-        .llm_provider("openai")
-        .model("gpt-4")
-        .embedding_provider("openai")
-        .storage_backend("sqlite")
+    // Create LLM client
+    let client = LLMClient::from_env()?;
+
+    // Build agent with tools
+    let agent = AgentBuilder::new()
+        .with_llm(client)
+        .with_tools(vec![Box::new(calculator)])
+        .stateful()  // Maintains conversation history
+        .verbose(true)
         .build()?;
 
-    // Initialize the RAG system
-    let rag = RagSystem::new(config).await?;
-
-    // Index documents
-    rag.index_document("path/to/document.pdf").await?;
-
-    // Query the system
-    let response = rag.query("What is the main topic of the document?").await?;
-    tracing::debug!("Answer: {}", response.content);
+    // Run agent
+    let response = agent.run("What is 156 + 23?").await?;
+    println!("{}", response);
 
     Ok(())
 }
 ```
 
-### **Local-First RAG (Complete Privacy)**
+### Environment Configuration
+
+```bash
+# Provider selection
+export RSLLM_PROVIDER=ollama  # or openai, claude
+export RSLLM_MODEL=llama3.2:3b
+
+# Provider-specific
+export RSLLM_OLLAMA_BASE_URL=http://localhost:11434/api/
+export RSLLM_OPENAI_API_KEY=your-api-key
+export RSLLM_OPENAI_MODEL=gpt-4
+
+# Optional settings
+export RSLLM_TEMPERATURE=0.7
+export RSLLM_MAX_TOKENS=2000
+```
+
+## 📚 Documentation
+
+### RSLLM - LLM Client
+
+The `rsllm` crate provides a unified interface for multiple LLM providers:
 
 ```rust
-use rag_core::{RagSystem, RagConfig};
+use rsllm::{LLMClient, ChatMessage, ChatRole};
 
-#[tokio::main]
-async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let config = RagConfig::builder()
-        .llm_provider("ollama")
-        .model("llama3.1")
-        .embedding_provider("local")
-        .embedding_model("all-MiniLM-L6-v2")
-        .storage_backend("sqlite")
-        .build()?;
+let client = LLMClient::from_env()?;
 
-    let rag = RagSystem::new(config).await?;
+let messages = vec![
+    ChatMessage::new(ChatRole::System, "You are a helpful assistant"),
+    ChatMessage::new(ChatRole::User, "Hello!"),
+];
 
-    // Everything runs locally - no external API calls
-    let response = rag.query("Your sensitive question here").await?;
+let response = client.chat_completion(messages).await?;
+```
 
-    Ok(())
+**Supported Providers:**
+- OpenAI (GPT-3.5, GPT-4, etc.)
+- Anthropic Claude
+- Ollama (local models)
+
+### Tool Calling
+
+Three approaches for tool creation:
+
+**1. `#[tool]` Macro (Recommended)**
+
+```rust
+#[derive(JsonSchema, Serialize, Deserialize)]
+pub struct WeatherParams {
+    /// City name to get weather for
+    pub city: String,
+    /// Temperature unit (celsius or fahrenheit)
+    #[schemars(regex(pattern = "^(celsius|fahrenheit)$"))]
+    pub unit: String,
+}
+
+#[tool(description = "Get current weather for a city")]
+fn get_weather(params: WeatherParams) -> Result<String, String> {
+    Ok(format!("Weather in {}: 72°{}", params.city, params.unit))
 }
 ```
 
-## 📖 **Crate Documentation**
+**2. SchemaBasedTool Trait**
 
-### **Core Crates**
+```rust
+use rsllm::tools::{SchemaBasedTool, ToolResult};
 
-| Crate                                        | Description               | Status         |
-| -------------------------------------------- | ------------------------- | -------------- |
-| [`rsllm`](./crates/rsllm/)                   | Multi-provider LLM client | ✅ Ready       |
-| [`rag-core`](./crates/rag-core/)             | RAG orchestration engine  | 🚧 In Progress |
-| [`rag-retrieval`](./crates/rag-retrieval/)   | Search and retrieval      | 🚧 In Progress |
-| [`rag-embeddings`](./crates/rag-embeddings/) | Vector embeddings         | 📝 Planned     |
-| [`rag-storage`](./crates/rag-storage/)       | Database abstraction      | 📝 Planned     |
-| [`rag-indexing`](./crates/rag-indexing/)     | Document processing       | 📝 Planned     |
+pub struct DatabaseTool {
+    connection: DatabaseConnection,
+}
 
-### **Production Crates**
+impl SchemaBasedTool for DatabaseTool {
+    fn name(&self) -> &str { "query_database" }
+    fn description(&self) -> &str { "Query the database" }
+    fn parameters_schema(&self) -> serde_json::Value { /* ... */ }
+    async fn call(&self, args: serde_json::Value) -> ToolResult {
+        // Execute with state
+    }
+}
+```
 
-| Crate                                | Description          | Status     |
-| ------------------------------------ | -------------------- | ---------- |
-| [`rag-server`](./crates/rag-server/) | HTTP API server      | 📝 Planned |
-| [`rag-cli`](./crates/rag-cli/)       | Command-line tools   | 📝 Planned |
-| [`rag-eval`](./crates/rag-eval/)     | Evaluation framework | 📝 Planned |
+### Agent System
 
-## 🎯 **Use Cases**
+**Stateful Agents** (Chat applications):
 
-### **🏢 Enterprise Knowledge Base**
+```rust
+let agent = AgentBuilder::new()
+    .with_llm(client)
+    .with_tools(tools)
+    .stateful()  // Maintains conversation history
+    .with_system_prompt("You are a helpful assistant")
+    .with_max_iterations(10)
+    .verbose(true)
+    .build()?;
 
-- Index company documents, wikis, and databases
-- Provide employees with intelligent Q&A interface
-- Maintain data privacy with local deployment options
+// Multiple interactions maintain context
+agent.run("My name is Alice").await?;
+agent.run("What's my name?").await?;  // Remembers "Alice"
+```
 
-### **📚 Educational Assistant**
+**Stateless Agents** (API endpoints):
 
-- Create subject-specific tutoring systems
-- Build interactive learning experiences
-- Support multiple languages and formats
+```rust
+let agent = AgentBuilder::new()
+    .with_llm(client)
+    .with_tools(tools)
+    .stateless()  // Each call is independent
+    .build()?;
 
-### **🔬 Research Assistant**
+// Each call is independent
+agent.run("What is 2+2?").await?;
+agent.run("What is 3+3?").await?;
+```
 
-- Index academic papers and research databases
-- Provide literature reviews and synthesis
-- Support complex multi-step reasoning
+### Memory Backends
 
-### **💼 Customer Support**
+**In-Memory Storage** (Production-ready):
 
-- Build intelligent help desk systems
-- Provide instant answers from knowledge bases
-- Escalate complex queries to human agents
+```rust
+use rrag::storage::{InMemoryStorage, InMemoryConfig, Memory, MemoryValue};
 
-### **🏥 Healthcare Documentation**
+let config = InMemoryConfig {
+    max_keys: Some(100_000),
+    max_memory_bytes: Some(1_000_000_000), // 1GB
+    enable_eviction: false,
+};
 
-- Index medical literature and guidelines
-- Support clinical decision making
-- Maintain HIPAA compliance with local deployment
+let storage = InMemoryStorage::with_config(config);
 
-## 🛠️ **Development**
+// Store and retrieve
+storage.set("user:name", MemoryValue::from("Alice")).await?;
+let name = storage.get("user:name").await?;
+```
 
-### **Building the Workspace**
+**Database Storage** (⚠️ Experimental):
+
+```rust
+use rrag::storage::{DatabaseStorage, DatabaseConfig};
+
+let config = DatabaseConfig {
+    connection_string: "sqlite:memory.db".to_string(),
+    max_connections: 10,
+    ..Default::default()
+};
+
+let storage = DatabaseStorage::with_config(config).await?;
+```
+
+> **Note:** DatabaseStorage currently uses in-memory fallback due to Toasty ORM being experimental. For production persistence, use `InMemoryStorage` or integrate `sqlx`/`diesel` directly.
+
+### Graph Orchestration
+
+Build complex multi-agent workflows:
+
+```rust
+use rrag_graph::{Graph, Node, ExecutionContext};
+use rrag::storage::InMemoryStorage;
+
+let storage = Arc::new(InMemoryStorage::new());
+let context = ExecutionContext::new("graph-id", node_id)
+    .with_memory(storage);
+
+// Build workflow graph
+let mut graph = Graph::new("workflow");
+graph.add_node(agent_node);
+graph.add_node(processing_node);
+graph.add_edge("agent", "processing");
+
+// Execute with persistent memory
+graph.execute(&mut state, &context).await?;
+```
+
+## 🎯 Examples
+
+Run the examples to see RRAG in action:
 
 ```bash
-# Clone the repository
-git clone https://github.com/levalhq/rrag
-cd leval-rag-workspace
+# Tool calling guide (comprehensive demo)
+cargo run -p rsllm --example tool_calling_guide --all-features
 
-# Build all crates
+# OpenAI compatibility verification
+cargo run -p rsllm --example openai_compatibility_test --all-features
+
+# Agent demo (stateful and stateless modes)
+cargo run --bin agent_demo
+
+# Simple agent prototype
+cargo run --bin simple_agent
+
+# Storage demo
+cargo run -p rrag --example storage_demo --features rsllm-client
+
+# Memory integration with agents
+cargo run --example agent_memory_demo --features rrag-integration,observability
+```
+
+### Running Examples with Ollama
+
+1. Install and start Ollama:
+```bash
+ollama serve
+```
+
+2. Pull a model with tool support:
+```bash
+ollama pull llama3.2:3b
+```
+
+3. Run examples:
+```bash
+export RSLLM_PROVIDER=ollama
+export RSLLM_MODEL=llama3.2:3b
+cargo run --bin agent_demo
+```
+
+## 🏗️ Architecture
+
+### Key Design Principles
+
+1. **Type Safety** - Leverage Rust's type system for correctness
+2. **Zero-Cost Abstractions** - Performance without runtime overhead
+3. **Async/Await** - Non-blocking I/O throughout
+4. **Modular Design** - Use only what you need
+5. **Production Ready** - Structured logging, error handling, observability
+
+### Tool Schema Generation
+
+RRAG uses a vendored, modified version of `schemars` configured for 100% OpenAI compatibility:
+
+- Draft 7 JSON Schema (not 2020-12)
+- Inline subschemas (no `$ref`, no `$defs`)
+- No `$schema` field
+- Verified with OpenAI compatibility tests
+
+### Agent Loop
+
+```
+User Input
+  ↓
+Agent.run()
+  ↓
+LLM Call (with tool schemas)
+  ↓
+Tool Calls?
+  Yes → Execute Tools → Add Results → Loop (max 10 iterations)
+  No → Final Answer
+```
+
+### Why Rexis?
+
+**Rexis** combines the power of Rust's performance and safety with modern RAG capabilities:
+
+- **Performance**: Zero-cost abstractions and async I/O for high throughput
+- **Safety**: Rust's type system prevents common bugs at compile time
+- **Flexibility**: Use individual crates or the full framework
+- **Production Ready**: Built-in observability, error handling, and testing
+
+### Memory Architecture
+
+```
+┌─────────────────────────────────────┐
+│      Application Layer              │
+│  (Agents, Graphs, Custom Logic)     │
+└──────────────┬──────────────────────┘
+               │
+               ▼
+┌─────────────────────────────────────┐
+│       Memory Trait                  │
+│  (Unified Storage Interface)        │
+└──────────────┬──────────────────────┘
+               │
+       ┌───────┴────────┐
+       ▼                ▼
+┌─────────────┐  ┌──────────────┐
+│ InMemory    │  │  Database    │
+│  Storage    │  │  Storage     │
+│ (Production)│  │(Experimental)│
+└─────────────┘  └──────────────┘
+```
+
+## 🔧 Development
+
+### Prerequisites
+
+- Rust 1.70 or higher
+- (Optional) Ollama for local LLM testing
+
+### Building
+
+```bash
+# Build entire workspace
 cargo build
 
-# Run tests
-cargo test
+# Build specific crate
+cargo build -p rsllm
+cargo build -p rrag
 
-# Run examples
-cargo run --example basic-rag
-
-# Build documentation
-cargo doc --open
+# Build with all features
+cargo build --all-features
 ```
 
-### **Running Examples**
+### Testing
 
 ```bash
-# Basic RAG with OpenAI
-OPENAI_API_KEY=your-key cargo run --example openai-rag
+# Run all tests
+cargo test --workspace
 
-# Local RAG with Ollama
-cargo run --example local-rag
+# Test specific crate
+cargo test -p rsllm --lib
+cargo test -p rrag --all-features
 
-# Advanced RAG with evaluation
-cargo run --example evaluated-rag
-
-# Production API server
-cargo run --bin rag-server
+# Run with logging
+RUST_LOG=debug cargo test
 ```
 
-## 📊 **Benchmarks**
+### Code Quality
 
-### **Performance Characteristics**
+```bash
+# Format code
+cargo fmt --all
 
-- **Indexing**: 10,000 documents/minute on modern hardware
-- **Retrieval**: Sub-100ms semantic search on 1M+ documents
-- **Generation**: Dependent on LLM provider (local: 50+ tokens/sec)
-- **Memory**: ~500MB base footprint, scales with index size
+# Run clippy
+cargo clippy --all-features --workspace -- -D warnings
 
-### **Quality Metrics**
+# Check without building
+cargo check --workspace
+```
 
-- **Retrieval Accuracy**: 95%+ relevant results in top-5
-- **Answer Quality**: Comparable to GPT-4 with proper context
-- **Hallucination Rate**: <5% with proper grounding
-- **Cost Efficiency**: 10x cheaper than pure LLM solutions
+### Logging Policy
 
-## 🤝 **Contributing**
+**Always use `tracing` for logging:**
 
-We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details.
+```rust
+use tracing::{debug, info, warn, error};
 
-### **Development Areas**
+tracing::info!(user_id = %user.id, "User logged in");
+tracing::error!(error = ?e, "Failed to process request");
+```
 
-- 🔍 **Retrieval Algorithms**: Advanced search and ranking
-- 🧠 **LLM Integration**: New provider support
-- 💾 **Storage Backends**: Database integrations
-- 📊 **Evaluation Metrics**: Quality assessment
-- 🌐 **API Features**: Advanced endpoints
-- 📱 **UI Components**: User interfaces
+**Never use `println!`, `eprintln!`, or `dbg!()` except in:**
+- Example binaries for user-facing output
+- Test output
 
-## 📄 **License**
+## 🤝 Contributing
+
+Contributions are welcome! Please follow these guidelines:
+
+1. **Fork** the repository
+2. **Create** a feature branch (`git checkout -b feature/amazing-feature`)
+3. **Commit** your changes (follow existing commit style)
+4. **Push** to the branch (`git push origin feature/amazing-feature`)
+5. **Open** a Pull Request
+
+### Commit Guidelines
+
+- Use clear, descriptive commit messages
+- Follow conventional commits format (e.g., `feat:`, `fix:`, `docs:`)
+- Keep commits focused and atomic
+
+### Code Style
+
+- Run `cargo fmt` before committing
+- Ensure `cargo clippy` passes with no warnings
+- Add tests for new functionality
+- Update documentation as needed
+
+## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 🙏 **Acknowledgments**
+## 🙏 Acknowledgments
 
-- OpenAI for GPT models and embedding APIs
-- Anthropic for Claude models
-- Ollama for local model serving
-- The Rust community for excellent crates and tooling
-- RAG research community for foundational work
+- Built with [Rust](https://www.rust-lang.org/)
+- Inspired by [LangChain](https://www.langchain.com/)
+- Uses [Tokio](https://tokio.rs/) for async runtime
+- JSON Schema generation via modified [schemars](https://github.com/GREsau/schemars)
+
+## 📞 Contact
+
+- **Author**: Vasanth
+- **Email**: vasanth@0xteam.io
+- **Repository**: https://github.com/0xteamhq/rexis
+- **Issues**: https://github.com/0xteamhq/rexis/issues
+
+## 🗺️ Roadmap
+
+- [ ] Semantic search and vector embeddings
+- [ ] Advanced RAG strategies (HyDE, Self-RAG)
+- [ ] More LLM providers (Cohere, Gemini)
+- [ ] Stable database storage backend
+- [ ] Distributed agent orchestration
+- [ ] Web UI for agent monitoring
+- [ ] Benchmark suite and performance optimizations
 
 ---
 
-**Built with ❤️ in Rust for the AI community**
+**Star ⭐ this repository if you find it useful!**
