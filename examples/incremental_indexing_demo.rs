@@ -12,34 +12,34 @@
 //! - Rollback capabilities for failed updates
 //! - Performance monitoring and alerting
 
-use rrag::incremental::batch_processor::{BatchConfig, BatchProcessor, ErrorHandlingStrategy};
-use rrag::incremental::change_detection::ChangeSensitivity;
-use rrag::incremental::change_detection::{
+use rexis_rag::incremental::batch_processor::{BatchConfig, BatchProcessor, ErrorHandlingStrategy};
+use rexis_rag::incremental::change_detection::ChangeSensitivity;
+use rexis_rag::incremental::change_detection::{
     ChangeDetectionConfig, ChangeDetector, ChangeResult, ChangeTimestamps,
     ChangeType as DetectionChangeType, ContentDelta, MetadataChanges,
 };
-use rrag::incremental::index_manager::{
+use rexis_rag::incremental::index_manager::{
     ConflictResolutionStrategy, IncrementalIndexManager, IndexManagerConfig, IndexOperation,
     IndexUpdate, UpdateResult,
 };
-use rrag::incremental::integrity::{IntegrityChecker, IntegrityConfig};
-use rrag::incremental::monitoring::{
+use rexis_rag::incremental::integrity::{IntegrityChecker, IntegrityConfig};
+use rexis_rag::incremental::monitoring::{
     AlertConfig, AlertThresholds, ErrorMetrics, IndexingMetrics, MetricsCollector, MetricsUpdate,
     MonitoringConfig, OperationMetrics, PerformanceDataPoint, PerformanceTracker, RetryMetrics,
 };
-use rrag::incremental::rollback::{
+use rexis_rag::incremental::rollback::{
     RollbackConfig, RollbackManager, RollbackOperation, SystemState,
 };
-use rrag::incremental::vector_updates::{
+use rexis_rag::incremental::vector_updates::{
     EmbeddingUpdate, OptimizationType, UpdateReason, VectorOperation, VectorUpdateConfig,
     VectorUpdateManager,
 };
-use rrag::incremental::versioning::{
+use rexis_rag::incremental::versioning::{
     ChangeType, ConflictDetectionStrategy, ResolutionStrategy, VersionManager, VersionResolution,
     VersioningConfig,
 };
-use rrag::incremental::*;
-use rrag::prelude::*;
+use rexis_rag::incremental::*;
+use rexis_rag::prelude::*;
 use std::collections::HashMap;
 use tokio::time::{sleep, Duration};
 use uuid::Uuid;

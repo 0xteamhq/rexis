@@ -10,9 +10,9 @@
 //!
 //! Run: cargo run --bin agent_demo --features rsllm-client
 
-use rrag::prelude::*;
-use rsllm::tool;
-use rsllm::tools::Tool;
+use rexis_rag::prelude::*;
+use rexis_llm::tool;
+use rexis_llm::tools::Tool;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use std::error::Error;

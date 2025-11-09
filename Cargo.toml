@@ -1,10 +1,11 @@
 [workspace]
 resolver = "2"
 members = [
-    "crates/rrag",      # RRAG - Rust RAG Framework
-    "crates/rgraph",    # RGraph - Graph-based Agent Orchestration
-    "crates/rsllm",
-    "crates/rsllm-macros",  # RSLLM Procedural Macros
+    "crates/rexis",         # Rexis - Umbrella crate
+    "crates/rexis-rag",     # Rexis RAG - Retrieval-Augmented Generation Framework
+    "crates/rexis-graph",   # Rexis Graph - Graph-based Agent Orchestration
+    "crates/rexis-llm",     # Rexis LLM - Multi-provider LLM Client
+    "crates/rexis-macros",  # Rexis Macros - Procedural Macros
     "crates/schemars/schemars",  # Local schemars (vendored)
     "crates/schemars/schemars_derive",  # Local schemars_derive (vendored)
     "examples",
@@ -15,10 +16,10 @@ version = "0.1.0"
 edition = "2021"
 authors = ["vasanth <vasanth@0xteam.io>"]
 license = "MIT"
-repository = "https://github.com/0xteamhq/rrag"
-homepage = "https://github.com/0xteamhq/rrag"
-documentation = "https://docs.rs/rrag"
-keywords = ["rag", "llm", "ai", "retrieval", "generation"]
+repository = "https://github.com/0xteamhq/rexis"
+homepage = "https://github.com/0xteamhq/rexis"
+documentation = "https://docs.rs/rexis"
+keywords = ["rag", "llm", "ai", "agents", "memory"]
 categories = ["api-bindings", "web-programming", "science"]
 
 [workspace.dependencies]

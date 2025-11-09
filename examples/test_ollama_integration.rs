@@ -3,7 +3,7 @@
 //! This example tests the actual integration between RRAG and Ollama
 //! to ensure real conversations work correctly.
 
-use rrag::prelude::*;
+use rexis_rag::prelude::*;
 use serde_json::json;
 
 #[tokio::main]

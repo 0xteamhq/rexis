@@ -3,7 +3,7 @@
 //! Demonstrates the comprehensive evaluation framework including RAGAS metrics,
 //! retrieval evaluation, generation evaluation, and end-to-end benchmarks.
 
-use rrag::{
+use rexis_rag::{
     evaluation::{
         EvaluationService, EvaluationConfig, EvaluationData,
         TestQuery, GroundTruth, SystemResponse, RetrievedDocument, SystemTiming,
@@ -98,7 +98,7 @@ async fn main() -> RragResult<()> {
 }
 
 async fn demo_ragas_evaluation() -> RragResult<()> {
-    use rrag::evaluation::ragas::{RagasEvaluator, RagasConfig};
+    use rexis_rag::evaluation::ragas::{RagasEvaluator, RagasConfig};
     
     let config = RagasConfig::default();
     let evaluator = RagasEvaluator::new(config);
@@ -121,7 +121,7 @@ async fn demo_ragas_evaluation() -> RragResult<()> {
 }
 
 async fn demo_retrieval_evaluation() -> RragResult<()> {
-    use rrag::evaluation::retrieval_eval::{RetrievalEvaluator, RetrievalEvalConfig};
+    use rexis_rag::evaluation::retrieval_eval::{RetrievalEvaluator, RetrievalEvalConfig};
     
     let config = RetrievalEvalConfig::default();
     let evaluator = RetrievalEvaluator::new(config);
@@ -149,7 +149,7 @@ async fn demo_retrieval_evaluation() -> RragResult<()> {
 }
 
 async fn demo_generation_evaluation() -> RragResult<()> {
-    use rrag::evaluation::generation_eval::{GenerationEvaluator, GenerationEvalConfig};
+    use rexis_rag::evaluation::generation_eval::{GenerationEvaluator, GenerationEvalConfig};
     
     let config = GenerationEvalConfig::default();
     let evaluator = GenerationEvaluator::new(config);
@@ -176,7 +176,7 @@ async fn demo_generation_evaluation() -> RragResult<()> {
 }
 
 async fn demo_end_to_end_evaluation() -> RragResult<()> {
-    use rrag::evaluation::end_to_end::{EndToEndEvaluator, EndToEndConfig};
+    use rexis_rag::evaluation::end_to_end::{EndToEndEvaluator, EndToEndConfig};
     
     let config = EndToEndConfig::default();
     let evaluator = EndToEndEvaluator::new(config);

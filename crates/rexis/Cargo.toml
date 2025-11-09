@@ -1,0 +1,28 @@
+[package]
+name = "rexis"
+version = "0.1.0"
+edition = "2021"
+authors = ["vasanth <vasanth@0xteam.io>"]
+license = "MIT"
+repository = "https://github.com/0xteamhq/rexis"
+homepage = "https://github.com/0xteamhq/rexis"
+documentation = "https://docs.rs/rexis"
+description = "Rexis - Agentic AI Framework for Rust with memory-first agents, RAG, and graph orchestration"
+keywords = ["ai", "llm", "agents", "rag", "memory"]
+categories = ["api-bindings", "web-programming", "science"]
+readme = "README.md"
+
+[features]
+default = ["llm", "rag", "graph"]
+llm = ["dep:rexis-llm"]
+rag = ["dep:rexis-rag"]
+graph = ["dep:rexis-graph"]
+full = ["llm", "rag", "graph", "rexis-rag/rexis-llm-client", "rexis-rag/vector-search", "rexis-rag/observability"]
+
+[dependencies]
+rexis-llm = { version = "0.1.0", path = "../rexis-llm", optional = true }
+rexis-rag = { version = "0.1.0", path = "../rexis-rag", optional = true }
+rexis-graph = { version = "0.1.0", path = "../rexis-graph", optional = true }
+
+[dev-dependencies]
+tokio = { workspace = true }

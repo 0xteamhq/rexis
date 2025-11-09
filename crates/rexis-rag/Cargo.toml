@@ -1,0 +1,108 @@
+[package]
+name = "rexis-rag"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.70.0"
+description = "Rexis RAG - High-performance Retrieval-Augmented Generation framework with memory-first agents, vector search, and LLM integration"
+license = "MIT"
+keywords = ["rag", "llm", "agents", "memory", "retrieval"]
+categories = ["text-processing", "api-bindings", "asynchronous", "science", "web-programming"]
+authors = ["vasanth <vasanth@0xteam.io>"]
+repository = "https://github.com/0xteamhq/rexis"
+documentation = "https://docs.rs/rexis-rag"
+homepage = "https://github.com/0xteamhq/rexis"
+readme = "README.md"
+include = [
+    "src/**/*",
+    "Cargo.toml",
+    "README.md",
+    "LICENSE*"
+]
+
+[package.metadata.docs.rs]
+features = ["rexis-llm-client", "observability", "security"]
+rustdoc-args = ["--cfg", "docsrs"]
+all-features = false
+targets = ["x86_64-unknown-linux-gnu", "x86_64-apple-darwin", "x86_64-pc-windows-msvc"]
+
+[dependencies]
+# Core async runtime
+tokio = { workspace = true, features = ["full"] }
+tokio-stream = { workspace = true }
+futures = { workspace = true }
+async-trait = { workspace = true }
+
+# Serialization
+serde = { workspace = true, features = ["derive"] }
+serde_json = { workspace = true }
+
+# Error handling
+thiserror = { workspace = true }
+anyhow = { workspace = true }
+
+# Logging
+tracing = { workspace = true }
+
+# Utilities
+uuid = { workspace = true, features = ["v4", "serde"] }
+chrono = { workspace = true, features = ["serde"] }
+regex = "1.10"
+num_cpus = "1.16"
+hostname = "0.3"
+rand = "0.8"
+
+# LLM interface
+rexis-llm = { path = "../rexis-llm", optional = true, features = ["ollama", "macros"] }
+
+# Optional features
+reqwest = { workspace = true, optional = true }
+dashmap = { version = "5.5", optional = true }
+async-stream = "0.3"
+bincode = "1.3"
+rmp-serde = "1.1"
+
+# Security dependencies
+jsonwebtoken = "9.0"
+sha2 = "0.10"
+hmac = "0.12"
+totp-rs = { version = "5.0", features = ["serde_support", "qr"], optional = true }
+base64 = "0.22"
+validator = { version = "0.16", features = ["derive"] }
+bcrypt = "0.15"
+rand_core = "0.6"
+sanitize_html = "0.4"
+http = "1.0"
+headers = "0.4"
+http-body-util = "0.1"
+hyper = { version = "1.0", features = ["full"], optional = true }
+hyper-util = { version = "0.1", features = ["full"], optional = true }
+tower = { version = "0.4", features = ["full"], optional = true }
+tower-http = { version = "0.5", features = ["full"], optional = true }
+memcache = { version = "0.17", optional = true }
+redis = { version = "0.24", features = ["tokio-comp"], optional = true }
+toasty = { version = "0.1", optional = true }
+argon2 = "0.5"
+ring = "0.17"
+x509-parser = "0.15"
+pem = "3.0"
+csrf = "0.4"
+cookie = { version = "0.18", features = ["secure", "signed"], optional = true }
+async-session = { version = "3.0", optional = true }
+webauthn-rs = { version = "0.5", optional = true }
+
+[features]
+default = ["http"]
+rexis-llm-client = ["rexis-llm"]
+http = ["reqwest"]
+concurrent = ["dashmap"]
+observability = ["reqwest", "dashmap"]
+security = ["hyper", "hyper-util", "tower", "tower-http", "cookie", "async-session"]
+security-full = ["security", "redis", "memcache", "totp-rs", "webauthn-rs"]
+database = ["toasty"]  # EXPERIMENTAL: Toasty v0.1 is incubating, uses in-memory fallback
+vector-search = []  # Enable vector embeddings and similarity search for semantic memory
+
+[dev-dependencies]
+tokio-test = "0.4"
+tempfile = "3.8"
+tracing-subscriber = { workspace = true }
+

@@ -7,7 +7,7 @@
 //! - Query expansion using graph structure
 //! - Integration with traditional retrieval methods
 
-use rrag::graph_retrieval::{
+use rexis_rag::graph_retrieval::{
     algorithms::{GraphAlgorithms, PageRankConfig, TraversalConfig},
     builder::PrintProgressCallback,
     entity::{EntityExtractionConfig, RuleBasedEntityExtractor},
@@ -15,8 +15,8 @@ use rrag::graph_retrieval::{
     EdgeType, GraphBuildConfig, GraphConfigBuilder, GraphEdge, GraphNode, GraphRetrievalBuilder,
     KnowledgeGraph, NodeType,
 };
-use rrag::prelude::*;
-use rrag::Retriever;
+use rexis_rag::prelude::*;
+use rexis_rag::Retriever;
 use tokio;
 
 #[tokio::main]
@@ -323,7 +323,7 @@ async fn demo_graph_algorithms(graph: &KnowledgeGraph) -> RragResult<()> {
 
 /// Demonstrate query expansion using graph structure
 async fn demo_query_expansion(graph: &KnowledgeGraph) -> RragResult<()> {
-    use rrag::graph_retrieval::query_expansion::{ExpansionConfig, GraphQueryExpander};
+    use rexis_rag::graph_retrieval::query_expansion::{ExpansionConfig, GraphQueryExpander};
 
     tracing::debug!("Demonstrating query expansion...");
 

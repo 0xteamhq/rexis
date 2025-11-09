@@ -12,8 +12,8 @@
 //!
 //! Run with: `cargo run --example rrag_comprehensive`
 
-use rrag::prelude::*;
-use rrag::{
+use rexis_rag::prelude::*;
+use rexis_rag::{
     Calculator, ConversationSummaryMemory, ConversationTokenBufferMemory, DocumentChunkingStep,
     EchoTool, EmbeddingProvider, EmbeddingStep, InMemoryRetriever, InMemoryStorage,
     LocalEmbeddingProvider, Retriever, SearchAlgorithm, SearchConfig, TextOperation,

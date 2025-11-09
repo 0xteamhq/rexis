@@ -6,8 +6,8 @@
 //! - Dashboard demonstration
 //! - Log aggregation
 
-use rrag::prelude::*;
-use rrag::system::HealthStatus;
+use rexis_rag::prelude::*;
+use rexis_rag::system::HealthStatus;
 use tokio::time::{sleep, Duration};
 
 #[tokio::main]

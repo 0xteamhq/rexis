@@ -1,0 +1,68 @@
+[package]
+name = "rexis-llm"
+version = "0.1.0"
+edition = "2021"
+authors = ["vasanth <vasanth@0xteam.io>"]
+license = "MIT"
+repository = "https://github.com/0xteamhq/rexis"
+homepage = "https://github.com/0xteamhq/rexis/tree/main/crates/rexis-llm"
+documentation = "https://docs.rs/rexis-llm"
+description = "Rexis LLM - Multi-provider LLM client with streaming, tool calling, and JSON schema support"
+keywords = ["llm", "ai", "openai", "claude", "ollama"]
+categories = ["api-bindings", "web-programming", "network-programming"]
+
+[features]
+default = ["openai", "streaming", "json-schema", "macros"]
+openai = ["dep:reqwest"]
+claude = ["dep:reqwest"]
+ollama = ["dep:reqwest"]
+streaming = ["dep:tokio-stream", "dep:futures-util"]
+json-schema = ["dep:schemars"]
+macros = ["dep:rexis-macros", "json-schema"]
+
+[dependencies]
+# Async runtime
+tokio = { version = "1.0", features = ["macros", "rt-multi-thread", "time", "net"] }
+tokio-stream = { version = "0.1", optional = true }
+futures-util = { version = "0.3", optional = true }
+async-trait = "0.1"
+
+# HTTP client
+reqwest = { version = "0.12", features = ["json", "stream"], optional = true }
+
+# Serialization
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+schemars = { path = "../schemars/schemars", optional = true }
+
+# Macros
+rexis-macros = { path = "../rexis-macros", optional = true }
+
+# Error handling
+thiserror = "1.0"
+anyhow = "1.0"
+
+# Utilities
+uuid = { version = "1.0", features = ["v4", "serde"] }
+chrono = { version = "0.4", features = ["serde"] }
+url = { version = "2.5", features = ["serde"] }
+base64 = "0.22"
+
+# Streaming
+pin-project-lite = "0.2"
+bytes = "1.0"
+
+# Configuration
+config = "0.14"
+dotenv = "0.15"
+
+# Logging
+tracing = "0.1"
+
+[dev-dependencies]
+tokio-test = "0.4"
+wiremock = "0.6"
+
+[lib]
+name = "rexis_llm"
+path = "src/lib.rs"

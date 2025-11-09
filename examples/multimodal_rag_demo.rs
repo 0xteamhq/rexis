@@ -8,11 +8,11 @@
 //!
 //! Run with: `cargo run --bin multimodal_rag_demo`
 
-use rrag::multimodal::{
+use rexis_rag::multimodal::{
     AnalyzedChart, ChartType, ExtractedTable, MultiModalConfig, MultiModalDocument,
     MultiModalService,
 };
-use rrag::RragResult;
+use rexis_rag::RragResult;
 use std::path::PathBuf;
 
 #[tokio::main]

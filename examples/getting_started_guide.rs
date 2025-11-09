@@ -9,7 +9,7 @@
 //!
 //! Run with: `cargo run --bin getting_started_guide`
 
-use rrag::prelude::*;
+use rexis_rag::prelude::*;
 use std::collections::HashMap;
 use std::time::Instant;
 
@@ -90,7 +90,7 @@ async fn quick_start_tutorial() -> RragResult<RragSystem> {
 
     tracing::debug!("1. Create a basic RRAG system:");
     tracing::debug!("```rust");
-    tracing::debug!("use rrag::prelude::*;");
+    tracing::debug!("use rexis_rag::prelude::*;");
     tracing::debug!("let system = RragSystemBuilder::new()");
     tracing::debug!("    .with_embedding_provider(LocalEmbeddingProvider::new())");
     tracing::debug!("    .with_vector_store(InMemoryVectorStore::new())");
@@ -165,7 +165,7 @@ async fn document_processing_tutorial(_system: &RragSystem) -> RragResult<()> {
 
     tracing::debug!("1. Text Preprocessing:");
     tracing::debug!("```rust");
-    tracing::debug!("use rrag::preprocessing::{{TextPreprocessor, PreprocessingStep}};");
+    tracing::debug!("use rexis_rag::preprocessing::{{TextPreprocessor, PreprocessingStep}};");
     tracing::debug!("let preprocessor = TextPreprocessor::new()");
     tracing::debug!("    .add_step(PreprocessingStep::RemoveExtraWhitespace)");
     tracing::debug!("    .add_step(PreprocessingStep::NormalizeUnicode)");
@@ -174,7 +174,7 @@ async fn document_processing_tutorial(_system: &RragSystem) -> RragResult<()> {
 
     tracing::debug!("2. Document Chunking:");
     tracing::debug!("```rust");
-    tracing::debug!("use rrag::chunking::{{DocumentChunker, ChunkingStrategy}};");
+    tracing::debug!("use rexis_rag::chunking::{{DocumentChunker, ChunkingStrategy}};");
     tracing::debug!("let chunker = DocumentChunker::new()");
     tracing::debug!("    .with_strategy(ChunkingStrategy::Semantic)");
     tracing::debug!("    .with_chunk_size(512)");
@@ -270,7 +270,7 @@ async fn query_enhancement_tutorial() -> RragResult<()> {
 
     tracing::debug!("1. Query Rewriting:");
     tracing::debug!("```rust");
-    tracing::debug!("use rrag::query::{{QueryProcessor, QueryProcessorConfig}};");
+    tracing::debug!("use rexis_rag::query::{{QueryProcessor, QueryProcessorConfig}};");
     tracing::debug!("let processor = QueryProcessor::new(QueryProcessorConfig::default());");
     tracing::debug!("let enhanced = processor.process_query(\"What's ML?\").await?;");
     tracing::debug!("// Original: \"What's ML?\"");

@@ -3,8 +3,8 @@
 //! This example demonstrates the complete integration between RRAG framework
 //! and RSLLM client library for building production RAG applications.
 
-use rrag::prelude::*;
-use rrag::system::{EmbeddingConfig, StorageConfig};
+use rexis_rag::prelude::*;
+use rexis_rag::system::{EmbeddingConfig, StorageConfig};
 
 #[tokio::main]
 async fn main() -> RragResult<()> {

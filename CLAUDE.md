@@ -417,6 +417,146 @@ cargo run -p rrag --example storage_demo --features rsllm-client
 
 - `database` - Enable DatabaseStorage with Toasty (experimental)
 
+## RGraph + Memory Integration
+
+### Overview
+
+RGraph now supports persistent memory integration alongside GraphState, enabling:
+- **GraphState**: Fast, in-memory workflow data (temporary, cleared each execution)
+- **Memory**: Persistent storage across executions (survives restarts)
+- **Hybrid Approach**: Optimal performance + durability
+
+### ExecutionContext Memory Support
+
+The `ExecutionContext` now includes an optional `Memory` backend (requires `rrag-integration` feature):
+
+```rust
+use rrag::storage::InMemoryStorage;
+use rrag_graph::core::ExecutionContext;
+
+let storage = Arc::new(InMemoryStorage::new());
+let context = ExecutionContext::new("graph-id", NodeId::new("node-id"))
+    .with_memory(storage);
+```
+
+### Agent Node Memory Integration
+
+Agent nodes in RGraph workflows automatically:
+1. Load previous conversation from persistent memory (if available)
+2. Execute with access to both GraphState and Memory
+3. Save conversation back to memory for future executions
+
+**Key Features**:
+- Conversation history persists across executions
+- Namespaced storage: `agent::{agent_id}::conversation`
+- Conditional compilation: Only enabled with `rrag-integration` feature
+- Graceful fallback: Works without memory backend
+
+**Example** (crates/rgraph/src/nodes/agent.rs:102-242):
+```rust
+async fn reasoning_loop(&self, state: &mut GraphState, context: &ExecutionContext) {
+    // Load conversation from persistent memory
+    #[cfg(feature = "rrag-integration")]
+    if let Some(memory) = context.memory() {
+        let key = format!("agent::{}::conversation", self.id);
+        if let Ok(Some(value)) = memory.get(&key).await {
+            // Restore conversation history
+        }
+    }
+
+    // ... agent reasoning loop ...
+
+    // Save conversation back to memory
+    self.save_conversation(context, &conversation_history).await?;
+}
+```
+
+### Memory Patterns for Multi-Agent Systems
+
+**1. Agent-Scoped Memory**
+```rust
+// Each agent has isolated namespace
+let key = format!("agent::{}::data", agent_id);
+memory.set(&key, value).await?;
+```
+
+**2. Session-Scoped Memory**
+```rust
+// Temporary session data (can be cleared)
+let key = format!("session::{}::temp_data", session_id);
+memory.set(&key, value).await?;
+```
+
+**3. Shared Knowledge Base**
+```rust
+// Global cross-agent knowledge
+memory.set("global::shared_config", value).await?;
+```
+
+**4. Hybrid GraphState + Memory**
+```rust
+// Fast workflow data in GraphState
+state.set("current_step", "processing");
+
+// Persistent knowledge in Memory
+memory.set("agent::alice::learned_facts", facts).await?;
+```
+
+### RRAG AgentMemoryManager Integration
+
+For advanced memory management, use RRAG's AgentMemoryManager:
+
+```rust
+use rrag::agent::memory::{MemoryConfig, AgentMemoryManager};
+
+let config = MemoryConfig::new(storage, "my-agent")
+    .with_persistence(true)
+    .with_semantic_memory(true)   // Facts
+    .with_episodic_memory(true)   // Summaries
+    .with_working_memory(true);   // Scratchpad
+
+let mut manager = AgentMemoryManager::new(config);
+
+// Use different memory types
+manager.working().set("temp", value).await?;
+manager.semantic().store_fact(fact).await?;
+manager.episodic().store_episode(episode).await?;
+manager.shared().store("key", value).await?;
+```
+
+### Running Examples
+
+**Basic Memory Integration**:
+```bash
+cargo run --example agent_memory_demo --features rrag-integration,observability
+```
+
+**Full RRAG Memory System**:
+```bash
+cargo run --example rrag_agent_integration --features rrag-integration,observability
+```
+
+### Memory Configuration
+
+**Enable rrag-integration feature**:
+```toml
+[dependencies]
+rrag-graph = { version = "0.1", features = ["rrag-integration"] }
+```
+
+**Build with observability** (for tracing):
+```bash
+cargo build --features rrag-integration,observability
+```
+
+### Key Design Decisions
+
+1. **Optional Memory**: Agents work with or without memory backend
+2. **Namespaced Keys**: Prevent conflicts between agents/sessions
+3. **Conditional Compilation**: Zero overhead when not using memory
+4. **Manual Debug Impl**: ExecutionContext implements Debug without requiring Memory to be Debug
+5. **Graceful Degradation**: System works seamlessly in both modes
+
 ## Repository Metadata
 
 - **Author**: vasanth <vasanth@0xteam.io>

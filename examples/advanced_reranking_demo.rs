@@ -6,7 +6,7 @@
 //! - Learning-to-rank models for sophisticated scoring
 //! - Neural reranking with transformer architectures
 
-use rrag::{
+use rexis_rag::{
     reranking::{
         cross_encoder::CrossEncoderModelType,
         learning_to_rank::LTRModelType,
