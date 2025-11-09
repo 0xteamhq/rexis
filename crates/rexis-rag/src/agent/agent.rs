@@ -3,7 +3,10 @@
 use super::{AgentConfig, ConversationMemory, ConversationMode, ToolExecutor};
 use super::memory::AgentMemoryManager;
 use crate::error::RragResult;
-use crate::rexis_llm::{ChatMessage, ChatResponse, Client};
+
+#[cfg(feature = "rexis-llm-client")]
+use rexis_llm::{ChatMessage, ChatResponse, Client};
+
 use tracing::{debug, error, info};
 
 /// Agent that can use tools and maintain conversation
@@ -132,7 +135,7 @@ impl Agent {
 
                     // Add tool results to conversation
                     for result in tool_results {
-                        if let crate::rexis_llm::MessageContent::Text(ref content) = result.content {
+                        if let rexis_llm::MessageContent::Text(ref content) = result.content {
                             debug!(tool_result = %content, "Tool execution completed");
                         }
                         conversation.push(result);

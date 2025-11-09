@@ -1,7 +1,7 @@
 //! Tool execution for agents
 
-use crate::rexis_llm::tools::{ToolCall as ToolExec, ToolRegistry};
-use crate::rexis_llm::{ChatMessage, ToolCall};
+use rexis_llm::tools::{ToolCall as ToolExec, ToolRegistry};
+use rexis_llm::{ChatMessage, ToolCall};
 
 /// Handles tool execution for the agent
 pub struct ToolExecutor {

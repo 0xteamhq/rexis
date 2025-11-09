@@ -3,8 +3,11 @@
 use super::{Agent, AgentConfig, ConversationMode, ToolExecutor};
 use super::memory::{MemoryConfig, AgentMemoryManager};
 use crate::error::RragResult;
-use crate::rexis_llm::tools::{Tool, ToolRegistry};
-use crate::rexis_llm::Client;
+
+#[cfg(feature = "rexis-llm-client")]
+use rexis_llm::tools::{Tool, ToolRegistry};
+#[cfg(feature = "rexis-llm-client")]
+use rexis_llm::Client;
 
 /// Builder for creating agents
 pub struct AgentBuilder {

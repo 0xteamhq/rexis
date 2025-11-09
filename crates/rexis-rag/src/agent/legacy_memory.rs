@@ -1,6 +1,6 @@
 //! Conversation memory management (legacy in-memory implementation)
 
-use crate::rexis_llm::{ChatMessage, MessageRole};
+use rexis_llm::{ChatMessage, MessageRole};
 
 /// Manages conversation history for the agent
 #[derive(Debug, Clone)]

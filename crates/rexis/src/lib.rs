@@ -105,8 +105,8 @@ pub mod prelude {
 
     #[cfg(feature = "graph")]
     pub use crate::graph::{
-        core::{ExecutionContext, GraphState, NodeId},
-        nodes::Node,
-        workflow::GraphWorkflow,
+        core::{ExecutionContext, NodeId},
+        state::GraphState,
+        nodes::{AgentNode, ConditionNode, ToolNode, TransformNode},
     };
 }

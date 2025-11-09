@@ -15,10 +15,10 @@
 //! cargo run --example agent_memory_demo --features rrag-integration,observability
 //! ```
 
-use rrag::storage::{InMemoryStorage, Memory};
-use rrag_graph::core::{ExecutionContext, ExecutionResult, GraphBuilder, Node, NodeId};
-use rrag_graph::state::{GraphState, StateValue};
-use rrag_graph::RGraphResult;
+use rexis_rag::storage::{InMemoryStorage, Memory};
+use rexis_graph::core::{ExecutionContext, ExecutionResult, GraphBuilder, Node, NodeId};
+use rexis_graph::state::{GraphState, StateValue};
+use rexis_graph::RGraphResult;
 use async_trait::async_trait;
 use std::sync::Arc;
 use tracing::info;

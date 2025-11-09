@@ -2,7 +2,7 @@
 
 use crate::error::{RragError, RragResult};
 use crate::storage::{Memory, MemoryValue};
-use crate::rexis_llm::{ChatMessage, MessageRole}; // Use re-exported rsllm types
+use rexis_llm::{ChatMessage, MessageRole}; // Use re-exported rsllm types
 use uuid::Uuid;
 
 /// Conversation memory backed by persistent storage

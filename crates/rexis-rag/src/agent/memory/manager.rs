@@ -8,7 +8,7 @@ use super::episodic::EpisodicMemory;
 use super::shared::SharedKnowledgeBase;
 use crate::error::RragResult;
 use crate::storage::Memory;
-use crate::rexis_llm::ChatMessage; // Use re-exported rsllm type
+use rexis_llm::ChatMessage; // Use re-exported rsllm type
 use std::sync::Arc;
 
 /// Manages all memory types for an agent
