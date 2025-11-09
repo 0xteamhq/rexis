@@ -33,10 +33,10 @@ reqwest = { version = "0.12", features = ["json", "stream"], optional = true }
 # Serialization
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
-schemars = { path = "../schemars/schemars", optional = true }
+schemars = { version = "1.0.4", path = "../schemars/schemars", optional = true }
 
 # Macros
-rexis-macros = { path = "../rexis-macros", optional = true }
+rexis-macros = { version = "0.1.0", path = "../rexis-macros", optional = true }
 
 # Error handling
 thiserror = "1.0"

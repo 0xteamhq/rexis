@@ -52,7 +52,7 @@ hostname = "0.3"
 rand = "0.8"
 
 # LLM interface
-rexis-llm = { path = "../rexis-llm", optional = true, features = ["ollama", "macros"] }
+rexis-llm = { version = "0.1.0", path = "../rexis-llm", optional = true, features = ["ollama", "macros"] }
 
 # Optional features
 reqwest = { workspace = true, optional = true }
