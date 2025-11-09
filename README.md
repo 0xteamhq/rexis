@@ -1,19 +1,20 @@
-# Rexis - Rust RAG Framework
+# Rexis - Agentic AI Framework for Rust
 
-[![Crates.io](https://img.shields.io/crates/v/rrag.svg)](https://crates.io/crates/rrag)
-[![Documentation](https://docs.rs/rrag/badge.svg)](https://docs.rs/rrag)
+[![Crates.io](https://img.shields.io/crates/v/rexis.svg)](https://crates.io/crates/rexis)
+[![Documentation](https://docs.rs/rexis/badge.svg)](https://docs.rs/rexis)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Rust](https://img.shields.io/badge/rust-1.70%2B-orange.svg)](https://www.rust-lang.org/)
-[![CI](https://github.com/0xteamhq/rexis/workflows/CI/badge.svg)](https://github.com/0xteamhq/rexis/actions)
 
-**Rexis** is a modern, production-ready Retrieval-Augmented Generation (RAG) framework built in Rust, featuring multi-provider LLM support, graph-based agent orchestration, and flexible memory backends.
+> **"Rule your agents, connect your intelligence"**
+
+**Rexis** is a production-ready Agentic AI framework for Rust, featuring multi-provider LLM support, memory-first agents with vector search, and graph-based orchestration.
 
 ## 🌟 Features
 
 - **🤖 Multi-Provider LLM Support** - Unified interface for OpenAI, Anthropic Claude, and Ollama
 - **🛠️ Type-Safe Tool Calling** - Automatic JSON schema generation with `#[tool]` macro
 - **🧠 Intelligent Agents** - LangChain-style agents with conversation memory and tool execution
-- **📊 Graph Orchestration** - Complex multi-agent workflows with `rgraph`
+- **📊 Graph Orchestration** - Complex multi-agent workflows with `rexis-graph`
 - **💾 Flexible Storage** - Multiple memory backends (in-memory, database with experimental support)
 - **🔍 RAG Pipeline** - Document processing, retrieval, and context-aware generation
 - **📝 Structured Logging** - Production-ready observability with `tracing`
@@ -25,11 +26,11 @@ This repository is organized as a workspace containing:
 
 | Crate | Description | Version |
 |-------|-------------|---------|
-| [`rsllm`](crates/rsllm) | Multi-provider LLM client with tool calling | [![Crates.io](https://img.shields.io/crates/v/rsllm.svg)](https://crates.io/crates/rsllm) |
-| [`rrag`](crates/rrag) | RAG framework with agents and memory | [![Crates.io](https://img.shields.io/crates/v/rrag.svg)](https://crates.io/crates/rrag) |
-| [`rgraph`](crates/rgraph) | Graph-based agent orchestration | [![Crates.io](https://img.shields.io/crates/v/rrag-graph.svg)](https://crates.io/crates/rrag-graph) |
-| [`rsllm-macros`](crates/rsllm-macros) | Procedural macros for `#[tool]` | [![Crates.io](https://img.shields.io/crates/v/rsllm-macros.svg)](https://crates.io/crates/rsllm-macros) |
-| [`schemars`](crates/schemars) | Vendored JSON Schema (OpenAI-compatible) | - |
+| [`rexis`](https://crates.io/crates/rexis) | Umbrella crate - All-in-one Rexis framework | [![Crates.io](https://img.shields.io/crates/v/rexis.svg)](https://crates.io/crates/rexis) |
+| [`rexis-llm`](https://crates.io/crates/rexis-llm) | Multi-provider LLM client with tool calling | [![Crates.io](https://img.shields.io/crates/v/rexis-llm.svg)](https://crates.io/crates/rexis-llm) |
+| [`rexis-rag`](https://crates.io/crates/rexis-rag) | RAG framework with memory-first agents | [![Crates.io](https://img.shields.io/crates/v/rexis-rag.svg)](https://crates.io/crates/rexis-rag) |
+| [`rexis-graph`](https://crates.io/crates/rexis-graph) | Graph-based agent orchestration | [![Crates.io](https://img.shields.io/crates/v/rexis-graph.svg)](https://crates.io/crates/rexis-graph) |
+| [`rexis-macros`](https://crates.io/crates/rexis-macros) | Procedural macros for `#[tool]` | [![Crates.io](https://img.shields.io/crates/v/rexis-macros.svg)](https://crates.io/crates/rexis-macros) |
 
 ## 🚀 Quick Start
 
@@ -39,17 +40,17 @@ Add to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-rrag = "0.1"
-rsllm = "0.1"
-tokio = { version = "1", features = ["full"] }
+rexis = { version = "0.1", features = ["full"] }
+# Or use individual crates:
+# rexis-llm = "0.1"
+# rexis-rag = "0.1"
+# rexis-graph = "0.1"
 ```
 
 ### Basic Example
 
 ```rust
-use rrag::agent::{AgentBuilder, ConversationMode};
-use rsllm::{LLMClient, Provider};
-use rsllm_macros::tool;
+use rexis::prelude::*;
 use serde::{Deserialize, Serialize};
 use schemars::JsonSchema;
 
@@ -70,7 +71,7 @@ fn calculator(params: CalculatorParams) -> Result<f64, String> {
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Create LLM client
-    let client = LLMClient::from_env()?;
+    let client = Client::from_env()?;
 
     // Build agent with tools
     let agent = AgentBuilder::new()
@@ -107,12 +108,12 @@ export RSLLM_MAX_TOKENS=2000
 
 ## 📚 Documentation
 
-### RSLLM - LLM Client
+### Rexis LLM - LLM Client
 
-The `rsllm` crate provides a unified interface for multiple LLM providers:
+The `rexis-llm` crate provides a unified interface for multiple LLM providers:
 
 ```rust
-use rsllm::{LLMClient, ChatMessage, ChatRole};
+use rexis_llm::{LLMClient, ChatMessage, ChatRole};
 
 let client = LLMClient::from_env()?;
 
@@ -154,7 +155,7 @@ fn get_weather(params: WeatherParams) -> Result<String, String> {
 **2. SchemaBasedTool Trait**
 
 ```rust
-use rsllm::tools::{SchemaBasedTool, ToolResult};
+use rexis_llm::tools::{SchemaBasedTool, ToolResult};
 
 pub struct DatabaseTool {
     connection: DatabaseConnection,
@@ -208,7 +209,7 @@ agent.run("What is 3+3?").await?;
 **In-Memory Storage** (Production-ready):
 
 ```rust
-use rrag::storage::{InMemoryStorage, InMemoryConfig, Memory, MemoryValue};
+use rexis::rag::storage::{InMemoryStorage, InMemoryConfig, Memory, MemoryValue};
 
 let config = InMemoryConfig {
     max_keys: Some(100_000),
@@ -226,7 +227,7 @@ let name = storage.get("user:name").await?;
 **Database Storage** (⚠️ Experimental):
 
 ```rust
-use rrag::storage::{DatabaseStorage, DatabaseConfig};
+use rexis::rag::storage::{DatabaseStorage, DatabaseConfig};
 
 let config = DatabaseConfig {
     connection_string: "sqlite:memory.db".to_string(),
@@ -244,8 +245,8 @@ let storage = DatabaseStorage::with_config(config).await?;
 Build complex multi-agent workflows:
 
 ```rust
-use rrag_graph::{Graph, Node, ExecutionContext};
-use rrag::storage::InMemoryStorage;
+use rexis::graph::{Graph, Node, ExecutionContext};
+use rexis::rag::storage::InMemoryStorage;
 
 let storage = Arc::new(InMemoryStorage::new());
 let context = ExecutionContext::new("graph-id", node_id)
