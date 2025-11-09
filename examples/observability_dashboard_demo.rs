@@ -13,7 +13,7 @@
 use chrono::Utc;
 use rand::rngs::StdRng;
 use rand::{Rng, SeedableRng};
-use rrag::observability::{
+use rexis_rag::observability::{
     self,
     alerting::{
         AlertCondition, AlertConfig, AlertRule, AlertSeverity, ComparisonOperator,
@@ -35,7 +35,7 @@ use rrag::observability::{
     retention::{RetentionConfig, RetentionPolicyConfig},
     ObservabilityConfig, ObservabilitySystem,
 };
-use rrag::prelude::*;
+use rexis_rag::prelude::*;
 use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::time::{sleep, Duration};

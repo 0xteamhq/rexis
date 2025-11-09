@@ -9,11 +9,11 @@
 //!
 //! Run with: `cargo run --bin caching_performance_demo`
 
-use rrag::caching::{
+use rexis_rag::caching::{
     CacheConfig, CacheMetrics, CacheService, EmbeddingCacheConfig, EvictionPolicy,
     QueryCacheConfig, SemanticCacheConfig,
 };
-use rrag::prelude::*;
+use rexis_rag::prelude::*;
 use std::collections::HashMap;
 use std::time::{Duration, Instant};
 
@@ -397,7 +397,7 @@ async fn simulate_embedding_computation(text: &str) -> RragResult<Vec<f32>> {
 }
 
 fn create_cache_entry(query: &str, results: &[String]) -> rrag::caching::QueryCacheEntry {
-    use rrag::caching::{CacheEntryMetadata, CachedSearchResult, QueryCacheEntry};
+    use rexis_rag::caching::{CacheEntryMetadata, CachedSearchResult, QueryCacheEntry};
 
     let cached_results = results
         .iter()
@@ -421,7 +421,7 @@ fn create_cache_entry(query: &str, results: &[String]) -> rrag::caching::QueryCa
 }
 
 fn create_semantic_cache_entry(query: &str) -> rrag::caching::SemanticCacheEntry {
-    use rrag::caching::{CacheEntryMetadata, SemanticCacheEntry, SimilarEntry};
+    use rexis_rag::caching::{CacheEntryMetadata, SemanticCacheEntry, SimilarEntry};
 
     SemanticCacheEntry {
         representative: query.to_string(),

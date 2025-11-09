@@ -1398,7 +1398,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "778e2ac28f6c47af28e4907f13ffd1e1ddbd400980a9abd7c8df189bf578a5ad"
 dependencies = [
  "libc",
- "windows-sys 0.59.0",
+ "windows-sys 0.60.2",
 ]
 
 [[package]]
@@ -3661,6 +3661,159 @@ dependencies = [
 ]
 
 [[package]]
+name = "rexis"
+version = "0.1.0"
+dependencies = [
+ "rexis-graph",
+ "rexis-llm",
+ "rexis-rag",
+ "tokio",
+]
+
+[[package]]
+name = "rexis-examples"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "async-trait",
+ "chrono",
+ "futures",
+ "rand 0.8.5",
+ "reqwest",
+ "rexis-graph",
+ "rexis-llm",
+ "rexis-rag",
+ "schemars",
+ "serde",
+ "serde_json",
+ "thiserror 1.0.69",
+ "tokio",
+ "tracing",
+ "tracing-subscriber",
+ "uuid",
+]
+
+[[package]]
+name = "rexis-graph"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "async-trait",
+ "chrono",
+ "criterion",
+ "dashmap",
+ "futures",
+ "metrics",
+ "parking_lot",
+ "petgraph",
+ "rexis-rag",
+ "serde",
+ "serde_json",
+ "sqlx",
+ "thiserror 1.0.69",
+ "tokio",
+ "tokio-test",
+ "tracing",
+ "tracing-subscriber",
+ "uuid",
+]
+
+[[package]]
+name = "rexis-llm"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "async-trait",
+ "base64 0.22.1",
+ "bytes",
+ "chrono",
+ "config",
+ "dotenv",
+ "futures-util",
+ "pin-project-lite",
+ "reqwest",
+ "rexis-macros",
+ "schemars",
+ "serde",
+ "serde_json",
+ "thiserror 1.0.69",
+ "tokio",
+ "tokio-stream",
+ "tokio-test",
+ "tracing",
+ "url",
+ "uuid",
+ "wiremock",
+]
+
+[[package]]
+name = "rexis-macros"
+version = "0.1.0"
+dependencies = [
+ "convert_case",
+ "proc-macro2 1.0.95",
+ "quote 1.0.40",
+ "syn 2.0.104",
+]
+
+[[package]]
+name = "rexis-rag"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "argon2",
+ "async-session",
+ "async-stream",
+ "async-trait",
+ "base64 0.22.1",
+ "bcrypt",
+ "bincode",
+ "chrono",
+ "cookie",
+ "csrf",
+ "dashmap",
+ "futures",
+ "headers",
+ "hmac 0.12.1",
+ "hostname",
+ "http",
+ "http-body-util",
+ "hyper",
+ "hyper-util",
+ "jsonwebtoken",
+ "memcache",
+ "num_cpus",
+ "pem",
+ "rand 0.8.5",
+ "rand_core 0.6.4",
+ "redis",
+ "regex",
+ "reqwest",
+ "rexis-llm",
+ "ring",
+ "rmp-serde",
+ "sanitize_html",
+ "serde",
+ "serde_json",
+ "sha2 0.10.9",
+ "tempfile",
+ "thiserror 1.0.69",
+ "toasty",
+ "tokio",
+ "tokio-stream",
+ "tokio-test",
+ "totp-rs",
+ "tower",
+ "tower-http",
+ "tracing",
+ "tracing-subscriber",
+ "uuid",
+ "validator 0.16.1",
+ "webauthn-rs",
+ "x509-parser 0.15.1",
+]
+
+[[package]]
 name = "ring"
 version = "0.17.14"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3709,108 +3862,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "rrag"
-version = "0.1.0-alpha.2"
-dependencies = [
- "anyhow",
- "argon2",
- "async-session",
- "async-stream",
- "async-trait",
- "base64 0.22.1",
- "bcrypt",
- "bincode",
- "chrono",
- "cookie",
- "csrf",
- "dashmap",
- "futures",
- "headers",
- "hmac 0.12.1",
- "hostname",
- "http",
- "http-body-util",
- "hyper",
- "hyper-util",
- "jsonwebtoken",
- "memcache",
- "num_cpus",
- "pem",
- "rand 0.8.5",
- "rand_core 0.6.4",
- "redis",
- "regex",
- "reqwest",
- "ring",
- "rmp-serde",
- "rsllm",
- "sanitize_html",
- "serde",
- "serde_json",
- "sha2 0.10.9",
- "tempfile",
- "thiserror 1.0.69",
- "tokio",
- "tokio-stream",
- "tokio-test",
- "totp-rs",
- "tower",
- "tower-http",
- "tracing",
- "uuid",
- "validator 0.16.1",
- "webauthn-rs",
- "x509-parser 0.15.1",
-]
-
-[[package]]
-name = "rrag-examples"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "async-trait",
- "chrono",
- "futures",
- "rand 0.8.5",
- "reqwest",
- "rrag",
- "rrag-graph",
- "rsllm",
- "schemars",
- "serde",
- "serde_json",
- "thiserror 1.0.69",
- "tokio",
- "tracing",
- "tracing-subscriber",
- "uuid",
-]
-
-[[package]]
-name = "rrag-graph"
-version = "0.1.0-alpha.1"
-dependencies = [
- "anyhow",
- "async-trait",
- "chrono",
- "criterion",
- "dashmap",
- "futures",
- "metrics",
- "parking_lot",
- "petgraph",
- "rrag",
- "serde",
- "serde_json",
- "sqlx",
- "thiserror 1.0.69",
- "tokio",
- "tokio-test",
- "tracing",
- "uuid",
-]
-
-[[package]]
 name = "rsa"
 version = "0.9.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3828,44 +3879,6 @@ dependencies = [
  "spki",
  "subtle",
  "zeroize",
-]
-
-[[package]]
-name = "rsllm"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "async-trait",
- "base64 0.22.1",
- "bytes",
- "chrono",
- "config",
- "dotenv",
- "futures-util",
- "pin-project-lite",
- "reqwest",
- "rsllm-macros",
- "schemars",
- "serde",
- "serde_json",
- "thiserror 1.0.69",
- "tokio",
- "tokio-stream",
- "tokio-test",
- "tracing",
- "url",
- "uuid",
- "wiremock",
-]
-
-[[package]]
-name = "rsllm-macros"
-version = "0.1.0"
-dependencies = [
- "convert_case",
- "proc-macro2 1.0.95",
- "quote 1.0.40",
- "syn 2.0.104",
 ]
 
 [[package]]
@@ -3914,7 +3927,7 @@ dependencies = [
  "errno",
  "libc",
  "linux-raw-sys",
- "windows-sys 0.59.0",
+ "windows-sys 0.60.2",
 ]
 
 [[package]]
@@ -4955,6 +4968,12 @@ name = "tinyvec_macros"
 version = "0.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1f3ccbac311fea05f86f61904b462b55fb3df8837a366dfc601a0161d0532f20"
+
+[[package]]
+name = "toasty"
+version = "0.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c9d963860dfa36ee10be5b9662ee36d8f7e8c0b653d1b89f171a03fb79a23fdd"
 
 [[package]]
 name = "tokio"

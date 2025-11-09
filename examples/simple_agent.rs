@@ -11,9 +11,9 @@
 //!
 //! Run: cargo run --example simple_agent --features rsllm-client
 
-use rsllm::prelude::*;
-use rsllm::tool;
-use rsllm::tools::{Tool, ToolRegistry, ToolCall as ToolExec};
+use rexis_llm::prelude::*;
+use rexis_llm::tool;
+use rexis_llm::tools::{Tool, ToolRegistry, ToolCall as ToolExec};
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use serde_json::json;

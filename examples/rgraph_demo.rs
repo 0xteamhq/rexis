@@ -8,9 +8,9 @@
 //!
 //! Run with: `cargo run --bin rgraph_demo`
 
-use rrag::agent::AgentBuilder;
-use rrag::prelude::*;
-use rrag::tools::Calculator;
+use rexis_rag::agent::AgentBuilder;
+use rexis_rag::prelude::*;
+use rexis_rag::tools::Calculator;
 use std::sync::Arc;
 use tokio;
 

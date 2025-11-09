@@ -3,8 +3,8 @@
 //! Demonstrates the power of hybrid search combining semantic and keyword retrieval.
 //! Shows how different types of queries benefit from different retrieval strategies.
 
-use rrag::retrieval_enhanced::semantic::SimilarityMetric;
-use rrag::{
+use rexis_rag::retrieval_enhanced::semantic::SimilarityMetric;
+use rexis_rag::{
     BM25Config, Document, FusionStrategy, HybridConfig, HybridRetriever, MockEmbeddingService,
     RragResult, SemanticConfig, TokenizerType,
 };

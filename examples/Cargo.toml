@@ -1,5 +1,5 @@
 [package]
-name = "rrag-examples"
+name = "rexis-examples"
 version = "0.1.0"
 edition = "2021"
 
@@ -80,13 +80,13 @@ name = "rrag_integration_demo"
 path = "rrag_integration_demo.rs"
 
 [features]
-default = ["rsllm-client"]
-rsllm-client = ["rrag/rsllm-client"]
+default = ["rexis-llm-client"]
+rexis-llm-client = ["rexis-rag/rexis-llm-client"]
 
 [dependencies]
-rrag = { path = "../crates/rrag", features = ["rsllm-client", "observability"] }
-rrag-graph = { path = "../crates/rgraph" }
-rsllm = { path = "../crates/rsllm", features = ["ollama", "macros"] }
+rexis-rag = { path = "../crates/rexis-rag", features = ["rexis-llm-client", "observability"] }
+rexis-graph = { path = "../crates/rexis-graph" }
+rexis-llm = { path = "../crates/rexis-llm", features = ["ollama", "macros"] }
 schemars = { path = "../crates/schemars/schemars" }
 tokio = { workspace = true }
 async-trait = { workspace = true }

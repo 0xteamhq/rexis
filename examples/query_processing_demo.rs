@@ -7,8 +7,8 @@
 //! - Query decomposition for complex queries
 //! - HyDE generation for hypothetical documents
 
-use rrag::embeddings::MockEmbeddingProvider;
-use rrag::query::{
+use rexis_rag::embeddings::MockEmbeddingProvider;
+use rexis_rag::query::{
     ExpansionConfig, HyDEConfig, HyDEGenerator, QueryClassifier, QueryDecomposer, QueryExpander,
     QueryProcessor, QueryProcessorConfig, QueryRewriteConfig, QueryRewriter,
 };

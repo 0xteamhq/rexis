@@ -8,8 +8,8 @@
 //!
 //! Run with: `cargo run --bin production_deployment_demo`
 
-use rrag::prelude::*;
-use rrag::{system::PerformanceConfig, RragSystemBuilder};
+use rexis_rag::prelude::*;
+use rexis_rag::{system::PerformanceConfig, RragSystemBuilder};
 use std::time::Duration;
 use tokio;
 use tracing::info;
