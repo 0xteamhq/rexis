@@ -10,7 +10,7 @@
 //! - Querying and filtering keys
 //! - Getting storage statistics
 
-use rrag::storage::{InMemoryStorage, Memory, MemoryQuery, MemoryValue};
+use rexis_rag::storage::{InMemoryStorage, Memory, MemoryQuery, MemoryValue};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {

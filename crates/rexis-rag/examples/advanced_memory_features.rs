@@ -24,24 +24,24 @@
 //!
 //! ```bash
 //! # With all features
-//! cargo run --example advanced_memory_features --features rsllm-client,vector-search
+//! cargo run --example advanced_memory_features --features rexis-llm-client,vector-search
 //!
 //! # Just vector search (no LLM required)
 //! cargo run --example advanced_memory_features --features vector-search --no-default-features
 //! ```
 
-use rrag::agent::memory::{
+use rexis_rag::agent::memory::{
     CompressionConfig, Episode, EpisodicMemory, Fact, MemoryCompressor, SemanticMemory,
 };
-use rrag::storage::{InMemoryStorage, Memory, MemoryValue};
+use rexis_rag::storage::{InMemoryStorage, Memory, MemoryValue};
 use std::sync::Arc;
 use tracing::info;
 
 #[cfg(feature = "vector-search")]
-use rrag::agent::memory::{Embedding, HashEmbeddingProvider};
+use rexis_rag::agent::memory::{Embedding, HashEmbeddingProvider};
 
-#[cfg(feature = "rsllm-client")]
-use rsllm::{ChatMessage, Client};
+#[cfg(feature = "rexis-llm-client")]
+use rexis_llm::{ChatMessage, Client};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -68,7 +68,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // ========================================
     // 2. LLM-BASED SUMMARIZATION
     // ========================================
-    #[cfg(feature = "rsllm-client")]
+    #[cfg(feature = "rexis-llm-client")]
     {
         info!("=== 2. LLM-Based Summarization Demo ===");
         demo_llm_summarization(storage.clone()).await?;
@@ -93,7 +93,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 #[cfg(feature = "vector-search")]
 async fn demo_vector_search(storage: Arc<dyn Memory>) -> Result<(), Box<dyn std::error::Error>> {
-    use rrag::agent::memory::EmbeddingProvider;
+    use rexis_rag::agent::memory::EmbeddingProvider;
 
     info!("Creating semantic memory with vector search...");
     let semantic = SemanticMemory::new(storage.clone(), "vector-agent".to_string());
@@ -153,7 +153,7 @@ async fn demo_vector_search(storage: Arc<dyn Memory>) -> Result<(), Box<dyn std:
     Ok(())
 }
 
-#[cfg(feature = "rsllm-client")]
+#[cfg(feature = "rexis-llm-client")]
 async fn demo_llm_summarization(
     storage: Arc<dyn Memory>,
 ) -> Result<(), Box<dyn std::error::Error>> {
@@ -310,7 +310,7 @@ async fn demo_memory_compression(
     info!("  Space saved: {} bytes", stats.total_bytes - final_stats.total_bytes);
 
     // Compression with LLM (if available)
-    #[cfg(feature = "rsllm-client")]
+    #[cfg(feature = "rexis-llm-client")]
     {
         info!("\nTesting LLM-based conversation compression...");
         if let Ok(client) = Client::from_env() {
