@@ -3,8 +3,11 @@ name: Publish to crates.io
 on:
   push:
     tags:
-      - 'rsllm-v*'
-      - 'rsllm-macros-v*'
+      - 'rexis-macros-v*'
+      - 'rexis-llm-v*'
+      - 'rexis-rag-v*'
+      - 'rexis-graph-v*'
+      - 'rexis-v*'
   workflow_dispatch:
     inputs:
       crate:
@@ -12,9 +15,12 @@ on:
         required: true
         type: choice
         options:
-          - rsllm
-          - rsllm-macros
-          - both
+          - rexis-macros
+          - rexis-llm
+          - rexis-rag
+          - rexis-graph
+          - rexis
+          - all
 
 env:
   CARGO_TERM_COLOR: always
@@ -70,39 +76,90 @@ jobs:
           if [[ "$EVENT_NAME" == "workflow_dispatch" ]]; then
             CRATE="$WORKFLOW_INPUT"
           else
-            if [[ "$TAG_NAME" == rsllm-macros-v* ]]; then
-              CRATE="rsllm-macros"
-            elif [[ "$TAG_NAME" == rsllm-v* ]]; then
-              CRATE="rsllm"
+            if [[ "$TAG_NAME" == rexis-macros-v* ]]; then
+              CRATE="rexis-macros"
+            elif [[ "$TAG_NAME" == rexis-llm-v* ]]; then
+              CRATE="rexis-llm"
+            elif [[ "$TAG_NAME" == rexis-rag-v* ]]; then
+              CRATE="rexis-rag"
+            elif [[ "$TAG_NAME" == rexis-graph-v* ]]; then
+              CRATE="rexis-graph"
+            elif [[ "$TAG_NAME" == rexis-v* ]]; then
+              CRATE="rexis"
             else
-              CRATE="both"
+              CRATE="all"
             fi
           fi
           echo "crate=$CRATE" >> $GITHUB_OUTPUT
           echo "Publishing: $CRATE"
 
-      - name: Publish rsllm-macros
-        if: steps.determine-crate.outputs.crate == 'rsllm-macros' || steps.determine-crate.outputs.crate == 'both'
+      - name: Publish rexis-macros
+        if: steps.determine-crate.outputs.crate == 'rexis-macros' || steps.determine-crate.outputs.crate == 'all'
         env:
           CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
         run: |
-          echo "Publishing rsllm-macros to crates.io..."
-          cd crates/rsllm-macros
+          echo "Publishing rexis-macros to crates.io..."
+          cd crates/rexis-macros
           cargo publish --no-verify
 
-      - name: Wait for rsllm-macros to propagate
-        if: steps.determine-crate.outputs.crate == 'both'
+      - name: Wait for rexis-macros to propagate
+        if: steps.determine-crate.outputs.crate == 'all'
         run: |
-          echo "Waiting 90 seconds for rsllm-macros to be available on crates.io..."
+          echo "Waiting 90 seconds for rexis-macros to be available on crates.io..."
           sleep 90
 
-      - name: Publish rsllm
-        if: steps.determine-crate.outputs.crate == 'rsllm' || steps.determine-crate.outputs.crate == 'both'
+      - name: Publish rexis-llm
+        if: steps.determine-crate.outputs.crate == 'rexis-llm' || steps.determine-crate.outputs.crate == 'all'
         env:
           CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
         run: |
-          echo "Publishing rsllm to crates.io..."
-          cd crates/rsllm
+          echo "Publishing rexis-llm to crates.io..."
+          cd crates/rexis-llm
+          cargo publish --no-verify
+
+      - name: Wait for rexis-llm to propagate
+        if: steps.determine-crate.outputs.crate == 'all'
+        run: |
+          echo "Waiting 90 seconds for rexis-llm to be available on crates.io..."
+          sleep 90
+
+      - name: Publish rexis-rag
+        if: steps.determine-crate.outputs.crate == 'rexis-rag' || steps.determine-crate.outputs.crate == 'all'
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+        run: |
+          echo "Publishing rexis-rag to crates.io..."
+          cd crates/rexis-rag
+          cargo publish --no-verify
+
+      - name: Wait for rexis-rag to propagate
+        if: steps.determine-crate.outputs.crate == 'all'
+        run: |
+          echo "Waiting 90 seconds for rexis-rag to be available on crates.io..."
+          sleep 90
+
+      - name: Publish rexis-graph
+        if: steps.determine-crate.outputs.crate == 'rexis-graph' || steps.determine-crate.outputs.crate == 'all'
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+        run: |
+          echo "Publishing rexis-graph to crates.io..."
+          cd crates/rexis-graph
+          cargo publish --no-verify
+
+      - name: Wait for rexis-graph to propagate
+        if: steps.determine-crate.outputs.crate == 'all'
+        run: |
+          echo "Waiting 90 seconds for rexis-graph to be available on crates.io..."
+          sleep 90
+
+      - name: Publish rexis
+        if: steps.determine-crate.outputs.crate == 'rexis' || steps.determine-crate.outputs.crate == 'all'
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+        run: |
+          echo "Publishing rexis umbrella crate to crates.io..."
+          cd crates/rexis
           cargo publish --no-verify
 
       - name: Create GitHub Release
@@ -111,14 +168,22 @@ jobs:
         with:
           generate_release_notes: true
           body: |
-            Published to crates.io:
-            - rsllm: https://crates.io/crates/rsllm
-            - rsllm-macros: https://crates.io/crates/rsllm-macros
+            ## Rexis - Agentic AI Framework for Rust
 
-            Install with:
+            Published to crates.io:
+            - rexis: https://crates.io/crates/rexis (umbrella crate)
+            - rexis-llm: https://crates.io/crates/rexis-llm
+            - rexis-rag: https://crates.io/crates/rexis-rag
+            - rexis-graph: https://crates.io/crates/rexis-graph
+            - rexis-macros: https://crates.io/crates/rexis-macros
+
+            ### Quick Start
             ```toml
             [dependencies]
-            rsllm = "0.1"
+            rexis = { version = "0.1", features = ["full"] }
             ```
+
+            ### Tagline
+            *"Rule your agents, connect your intelligence"*
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
