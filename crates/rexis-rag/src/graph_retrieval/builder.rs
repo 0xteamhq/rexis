@@ -581,7 +581,8 @@ impl ProgressCallback for PrintProgressCallback {
             BuildPhase::GraphConstruction => {
                 tracing::debug!(
                     "Building graph: {} nodes, {} edges",
-                    progress.graph_nodes, progress.graph_edges
+                    progress.graph_nodes,
+                    progress.graph_edges
                 );
             }
             BuildPhase::EmbeddingGeneration => {
@@ -602,7 +603,8 @@ impl ProgressCallback for PrintProgressCallback {
                 );
                 tracing::debug!(
                     "Final graph: {} nodes, {} edges",
-                    progress.graph_nodes, progress.graph_edges
+                    progress.graph_nodes,
+                    progress.graph_edges
                 );
                 if !progress.errors.is_empty() {
                     tracing::debug!(

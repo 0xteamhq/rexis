@@ -150,7 +150,10 @@ mod tests {
         let working = WorkingMemory::new(storage, "test-session".to_string());
 
         // Set and get
-        working.set("temp_result", MemoryValue::from(42i64)).await.unwrap();
+        working
+            .set("temp_result", MemoryValue::from(42i64))
+            .await
+            .unwrap();
         let value = working.get("temp_result").await.unwrap();
         assert_eq!(value.unwrap().as_integer(), Some(42));
 
@@ -198,8 +201,14 @@ mod tests {
         let working = WorkingMemory::new(storage, "test-session".to_string());
 
         // Add some data
-        working.set("key1", MemoryValue::from("value1")).await.unwrap();
-        working.set("key2", MemoryValue::from("value2")).await.unwrap();
+        working
+            .set("key1", MemoryValue::from("value1"))
+            .await
+            .unwrap();
+        working
+            .set("key2", MemoryValue::from("value2"))
+            .await
+            .unwrap();
 
         assert_eq!(working.count().await.unwrap(), 2);
 
@@ -215,8 +224,14 @@ mod tests {
         let working2 = WorkingMemory::new(storage.clone(), "session2".to_string());
 
         // Set in different sessions
-        working1.set("data", MemoryValue::from("session1-data")).await.unwrap();
-        working2.set("data", MemoryValue::from("session2-data")).await.unwrap();
+        working1
+            .set("data", MemoryValue::from("session1-data"))
+            .await
+            .unwrap();
+        working2
+            .set("data", MemoryValue::from("session2-data"))
+            .await
+            .unwrap();
 
         // Verify isolation
         let value1 = working1.get("data").await.unwrap();

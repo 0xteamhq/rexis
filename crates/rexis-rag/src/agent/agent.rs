@@ -1,7 +1,7 @@
 //! Core Agent implementation
 
-use super::{AgentConfig, ConversationMemory, ConversationMode, ToolExecutor};
 use super::memory::AgentMemoryManager;
+use super::{AgentConfig, ConversationMemory, ConversationMode, ToolExecutor};
 use crate::error::RragResult;
 
 #[cfg(feature = "rexis-llm-client")]
@@ -103,7 +103,8 @@ impl Agent {
                     memory_manager.get_conversation_messages().await?
                 } else {
                     // Legacy in-memory conversation
-                    self.legacy_memory.add_message(ChatMessage::user(input.clone()));
+                    self.legacy_memory
+                        .add_message(ChatMessage::user(input.clone()));
                     self.legacy_memory.to_messages()
                 }
             }
@@ -111,7 +112,11 @@ impl Agent {
 
         // Agent loop: iterate until we get a final answer
         for iteration in 1..=self.config.max_iterations {
-            debug!(iteration, max_iterations = self.config.max_iterations, "Agent iteration");
+            debug!(
+                iteration,
+                max_iterations = self.config.max_iterations,
+                "Agent iteration"
+            );
 
             // Call LLM with tools
             let response = self.llm_step(&conversation).await?;
@@ -162,7 +167,8 @@ impl Agent {
                         .await?;
                 } else {
                     // Legacy in-memory
-                    self.legacy_memory.add_message(ChatMessage::assistant(response.content.clone()));
+                    self.legacy_memory
+                        .add_message(ChatMessage::assistant(response.content.clone()));
                 }
             }
 
@@ -177,7 +183,10 @@ impl Agent {
 
         Err(crate::error::RragError::Agent {
             agent_id: "default".to_string(),
-            message: format!("Agent exceeded maximum iterations ({})", self.config.max_iterations),
+            message: format!(
+                "Agent exceeded maximum iterations ({})",
+                self.config.max_iterations
+            ),
             source: None,
         })
     }

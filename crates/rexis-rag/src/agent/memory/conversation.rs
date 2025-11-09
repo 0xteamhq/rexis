@@ -141,7 +141,10 @@ impl ConversationMemoryStore {
     /// Convert ChatMessage to MemoryValue
     fn message_to_value(&self, message: &ChatMessage) -> RragResult<MemoryValue> {
         let json = serde_json::to_value(message).map_err(|e| {
-            RragError::storage("serialize_message", std::io::Error::new(std::io::ErrorKind::Other, e))
+            RragError::storage(
+                "serialize_message",
+                std::io::Error::new(std::io::ErrorKind::Other, e),
+            )
         })?;
 
         Ok(MemoryValue::Json(json))
@@ -151,7 +154,10 @@ impl ConversationMemoryStore {
     fn value_to_message(&self, value: &MemoryValue) -> RragResult<ChatMessage> {
         if let Some(json) = value.as_json() {
             let message = serde_json::from_value(json.clone()).map_err(|e| {
-                RragError::storage("deserialize_message", std::io::Error::new(std::io::ErrorKind::Other, e))
+                RragError::storage(
+                    "deserialize_message",
+                    std::io::Error::new(std::io::ErrorKind::Other, e),
+                )
             })?;
 
             Ok(message)
@@ -188,9 +194,7 @@ impl ConversationMemoryStore {
             keys_to_delete.push(self.message_key(idx));
         }
 
-        self.storage
-            .mdelete(&keys_to_delete)
-            .await?;
+        self.storage.mdelete(&keys_to_delete).await?;
 
         // Shift remaining messages down
         for idx in (start_idx + to_remove)..count {
@@ -240,10 +244,7 @@ mod tests {
             .add_message(ChatMessage::system("You are a helpful assistant"))
             .await
             .unwrap();
-        store
-            .add_message(ChatMessage::user("Hello"))
-            .await
-            .unwrap();
+        store.add_message(ChatMessage::user("Hello")).await.unwrap();
         store
             .add_message(ChatMessage::assistant("Hi there!"))
             .await

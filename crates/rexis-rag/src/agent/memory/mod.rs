@@ -52,8 +52,8 @@
 //! # }
 //! ```
 
-mod config;
 mod compression;
+mod config;
 mod conversation;
 mod episodic;
 mod manager;

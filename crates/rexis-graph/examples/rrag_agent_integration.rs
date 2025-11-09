@@ -17,12 +17,12 @@
 //! cargo run --example rrag_agent_integration --features rrag-integration,observability
 //! ```
 
-use rexis_rag::agent::memory::{Episode, Fact, MemoryConfig, AgentMemoryManager};
-use rexis_rag::storage::{InMemoryStorage, Memory, MemoryValue};
+use async_trait::async_trait;
 use rexis_graph::core::{ExecutionContext, ExecutionResult, GraphBuilder, Node, NodeId};
 use rexis_graph::state::{GraphState, StateValue};
 use rexis_graph::RGraphResult;
-use async_trait::async_trait;
+use rexis_rag::agent::memory::{AgentMemoryManager, Episode, Fact, MemoryConfig};
+use rexis_rag::storage::{InMemoryStorage, Memory, MemoryValue};
 use std::sync::Arc;
 use tracing::info;
 
@@ -57,7 +57,10 @@ impl Node for RRAGAgentNode {
         state: &mut GraphState,
         context: &ExecutionContext,
     ) -> RGraphResult<ExecutionResult> {
-        info!("Agent '{}' executing with full RRAG memory system", self.name);
+        info!(
+            "Agent '{}' executing with full RRAG memory system",
+            self.name
+        );
 
         // Get input from GraphState
         let user_input = state
@@ -87,11 +90,7 @@ impl Node for RRAGAgentNode {
             .set("current_task", input_text.clone())
             .await
             .ok();
-        manager
-            .working()
-            .set("processing_step", 1i64)
-            .await
-            .ok();
+        manager.working().set("processing_step", 1i64).await.ok();
 
         // 2. Store Semantic Memory (facts)
         info!("Storing fact in semantic memory...");
@@ -114,10 +113,7 @@ impl Node for RRAGAgentNode {
         info!("Updating shared knowledge base...");
         manager
             .shared()
-            .store(
-                "last_user_query",
-                MemoryValue::from(&input_text as &str),
-            )
+            .store("last_user_query", MemoryValue::from(&input_text as &str))
             .await
             .ok();
 
@@ -191,7 +187,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // Create agent node with storage backend
     info!("Creating RRAG-powered agent node...");
-    let agent = RRAGAgentNode::new("rrag_agent", "RRAG Bot", storage.clone(), "demo-agent".to_string());
+    let agent = RRAGAgentNode::new(
+        "rrag_agent",
+        "RRAG Bot",
+        storage.clone(),
+        "demo-agent".to_string(),
+    );
 
     // Build workflow
     info!("Building workflow graph...");

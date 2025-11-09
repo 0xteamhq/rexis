@@ -221,7 +221,8 @@ impl AgentNode {
                 conversation_history.push(agent_response.clone());
 
                 // Save conversation to persistent memory before returning
-                self.save_conversation(context, &conversation_history).await?;
+                self.save_conversation(context, &conversation_history)
+                    .await?;
 
                 return Ok(agent_response.content);
             }
@@ -236,7 +237,8 @@ impl AgentNode {
             .unwrap_or_else(|| "Maximum reasoning steps reached without conclusion".to_string());
 
         // Save conversation to persistent memory
-        self.save_conversation(context, &conversation_history).await?;
+        self.save_conversation(context, &conversation_history)
+            .await?;
 
         Ok(final_response)
     }
@@ -267,10 +269,7 @@ impl AgentNode {
                     )
                 })?;
 
-            tracing::debug!(
-                "Saved {} messages to persistent memory",
-                conversation.len()
-            );
+            tracing::debug!("Saved {} messages to persistent memory", conversation.len());
         }
 
         #[cfg(not(feature = "rexis-rag-integration"))]

@@ -530,7 +530,8 @@ async fn demo_versioning_system() -> RragResult<()> {
         if let Some(change_summary) = &version.change_summary {
             tracing::debug!(
                 "      📊 Changes: +{} chars, -{} chars",
-                change_summary.additions, change_summary.deletions
+                change_summary.additions,
+                change_summary.deletions
             );
         }
 
@@ -1139,7 +1140,10 @@ async fn demo_monitoring_system() -> RragResult<()> {
         let success_rate = (stats.success_count as f64 / stats.total_count as f64) * 100.0;
         tracing::debug!(
             "      {}: {} ops, {:.1}% success, {:.2}ms avg",
-            op_type, stats.total_count, success_rate, stats.avg_duration_ms
+            op_type,
+            stats.total_count,
+            success_rate,
+            stats.avg_duration_ms
         );
     }
 
@@ -1390,7 +1394,8 @@ async fn demo_production_scenarios() -> RragResult<()> {
             .await?;
         tracing::debug!(
             "      ✏️  {} created version {}",
-            author, version.version_number
+            author,
+            version.version_number
         );
 
         // Small delay to simulate real-time updates
@@ -1400,7 +1405,8 @@ async fn demo_production_scenarios() -> RragResult<()> {
     let stats = version_manager.get_stats().await;
     tracing::debug!(
         "      📊 Version stats: {} versions, {} conflicts",
-        stats.total_versions, stats.total_conflicts
+        stats.total_versions,
+        stats.total_conflicts
     );
 
     // Scenario 3: System recovery after failure

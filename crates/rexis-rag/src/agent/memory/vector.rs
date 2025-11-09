@@ -36,11 +36,13 @@ impl Embedding {
             return Err(RragError::validation(
                 "embedding_dimensions",
                 "dimensions must match",
-                format!("{} vs {}", self.dimensions, other.dimensions)
+                format!("{} vs {}", self.dimensions, other.dimensions),
             ));
         }
 
-        let dot_product: f32 = self.vector.iter()
+        let dot_product: f32 = self
+            .vector
+            .iter()
             .zip(other.vector.iter())
             .map(|(a, b)| a * b)
             .sum();
@@ -61,11 +63,13 @@ impl Embedding {
             return Err(RragError::validation(
                 "embedding_dimensions",
                 "dimensions must match",
-                format!("{} vs {}", self.dimensions, other.dimensions)
+                format!("{} vs {}", self.dimensions, other.dimensions),
             ));
         }
 
-        let sum_of_squares: f32 = self.vector.iter()
+        let sum_of_squares: f32 = self
+            .vector
+            .iter()
             .zip(other.vector.iter())
             .map(|(a, b)| (a - b).powi(2))
             .sum();

@@ -56,7 +56,9 @@ impl GraphObserver for LoggingObserver {
         #[cfg(not(feature = "observability"))]
         tracing::debug!(
             "Graph execution ended: {} (success: {}, duration: {:?})",
-            graph_id, success, duration
+            graph_id,
+            success,
+            duration
         );
     }
 
@@ -98,7 +100,9 @@ impl GraphObserver for LoggingObserver {
         #[cfg(not(feature = "observability"))]
         tracing::debug!(
             "State change: {} = {} (was: {:?})",
-            key, new_value, old_value
+            key,
+            new_value,
+            old_value
         );
     }
 }

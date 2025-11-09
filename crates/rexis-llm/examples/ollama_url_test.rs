@@ -114,7 +114,9 @@ async fn main() -> RsllmResult<()> {
     tracing::debug!("✨ RSLLM handles both URL formats correctly!");
     tracing::debug!("\n💡 Key Insight:");
     tracing::debug!("   Customers can provide base URLs with or without trailing slashes,");
-    tracing::debug!("   and the library will normalize them automatically for consistent behavior.");
+    tracing::debug!(
+        "   and the library will normalize them automatically for consistent behavior."
+    );
 
     Ok(())
 }

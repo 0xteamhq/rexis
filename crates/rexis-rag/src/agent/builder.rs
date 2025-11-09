@@ -1,7 +1,7 @@
 //! Agent builder pattern
 
+use super::memory::{AgentMemoryManager, MemoryConfig};
 use super::{Agent, AgentConfig, ConversationMode, ToolExecutor};
-use super::memory::{MemoryConfig, AgentMemoryManager};
 use crate::error::RragResult;
 
 #[cfg(feature = "rexis-llm-client")]
@@ -96,20 +96,24 @@ impl AgentBuilder {
 
     /// Build the agent
     pub fn build(self) -> RragResult<Agent> {
-        let llm_client = self.llm_client.ok_or_else(|| crate::error::RragError::Agent {
-            agent_id: "builder".to_string(),
-            message: "LLM client is required. Use with_llm()".to_string(),
-            source: None,
-        })?;
+        let llm_client = self
+            .llm_client
+            .ok_or_else(|| crate::error::RragError::Agent {
+                agent_id: "builder".to_string(),
+                message: "LLM client is required. Use with_llm()".to_string(),
+                source: None,
+            })?;
 
         // Create tool registry
         let mut registry = ToolRegistry::new();
         for tool in self.tools {
-            registry.register(tool).map_err(|e| crate::error::RragError::Agent {
-                agent_id: "builder".to_string(),
-                message: format!("Failed to register tool: {}", e),
-                source: Some(Box::new(e)),
-            })?;
+            registry
+                .register(tool)
+                .map_err(|e| crate::error::RragError::Agent {
+                    agent_id: "builder".to_string(),
+                    message: format!("Failed to register tool: {}", e),
+                    source: Some(Box::new(e)),
+                })?;
         }
 
         let tool_executor = ToolExecutor::new(registry);

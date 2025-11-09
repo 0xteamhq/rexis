@@ -253,7 +253,9 @@ async fn demo_entity_extraction() -> RragResult<()> {
     for entity in &entities {
         tracing::debug!(
             "  - '{}' (type: {:?}, confidence: {:.2})",
-            entity.text, entity.entity_type, entity.confidence
+            entity.text,
+            entity.entity_type,
+            entity.confidence
         );
     }
 
@@ -261,7 +263,9 @@ async fn demo_entity_extraction() -> RragResult<()> {
     for relationship in &relationships {
         tracing::debug!(
             "  - '{}' --[{}]--> '{}'",
-            relationship.source_entity, relationship.relation_type, relationship.target_entity
+            relationship.source_entity,
+            relationship.relation_type,
+            relationship.target_entity
         );
     }
 
@@ -358,7 +362,9 @@ async fn demo_query_expansion(graph: &KnowledgeGraph) -> RragResult<()> {
         for term in &expansion_result.expanded_terms {
             tracing::debug!(
                 "    - '{}' (strategy: {}, confidence: {:.2})",
-                term.term, term.strategy, term.confidence
+                term.term,
+                term.strategy,
+                term.confidence
             );
         }
         tracing::debug!("  Overall confidence: {:.2}", expansion_result.confidence);

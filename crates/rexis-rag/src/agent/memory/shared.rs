@@ -116,7 +116,11 @@ impl SharedKnowledgeBase {
     }
 
     /// Store a knowledge entry
-    pub async fn store(&self, key: impl Into<String>, value: impl Into<MemoryValue>) -> RragResult<KnowledgeEntry> {
+    pub async fn store(
+        &self,
+        key: impl Into<String>,
+        value: impl Into<MemoryValue>,
+    ) -> RragResult<KnowledgeEntry> {
         let entry = KnowledgeEntry::new(key, value, self.agent_id.clone());
         self.store_entry(entry.clone()).await?;
         Ok(entry)
@@ -141,10 +145,16 @@ impl SharedKnowledgeBase {
         entry.updated_at = chrono::Utc::now();
 
         let storage_key = self.entry_key(&entry.key);
-        let value = serde_json::to_value(&entry)
-            .map_err(|e| crate::error::RragError::storage("serialize_entry", std::io::Error::new(std::io::ErrorKind::Other, e)))?;
+        let value = serde_json::to_value(&entry).map_err(|e| {
+            crate::error::RragError::storage(
+                "serialize_entry",
+                std::io::Error::new(std::io::ErrorKind::Other, e),
+            )
+        })?;
 
-        self.storage.set(&storage_key, MemoryValue::Json(value)).await
+        self.storage
+            .set(&storage_key, MemoryValue::Json(value))
+            .await
     }
 
     /// Get a knowledge entry
@@ -152,8 +162,12 @@ impl SharedKnowledgeBase {
         let storage_key = self.entry_key(key);
         if let Some(value) = self.storage.get(&storage_key).await? {
             if let Some(json) = value.as_json() {
-                let entry: KnowledgeEntry = serde_json::from_value(json.clone())
-                    .map_err(|e| crate::error::RragError::storage("deserialize_entry", std::io::Error::new(std::io::ErrorKind::Other, e)))?;
+                let entry: KnowledgeEntry = serde_json::from_value(json.clone()).map_err(|e| {
+                    crate::error::RragError::storage(
+                        "deserialize_entry",
+                        std::io::Error::new(std::io::ErrorKind::Other, e),
+                    )
+                })?;
 
                 // Check ACL
                 if entry.has_access(&self.agent_id) {
@@ -275,7 +289,9 @@ mod tests {
         let kb = SharedKnowledgeBase::new(storage, "agent1".to_string());
 
         // Store and retrieve
-        kb.store("api_key", MemoryValue::from("secret123")).await.unwrap();
+        kb.store("api_key", MemoryValue::from("secret123"))
+            .await
+            .unwrap();
 
         let value = kb.get_value("api_key").await.unwrap().unwrap();
         assert_eq!(value.as_string(), Some("secret123"));

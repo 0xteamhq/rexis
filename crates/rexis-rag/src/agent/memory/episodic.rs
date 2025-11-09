@@ -10,7 +10,7 @@ use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 
 #[cfg(feature = "rexis-llm-client")]
-use rexis_llm::{Client, ChatMessage, MessageRole};
+use rexis_llm::{ChatMessage, Client, MessageRole};
 
 /// An episode (summarized interaction or event)
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -119,8 +119,12 @@ impl EpisodicMemory {
     /// Store an episode
     pub async fn store_episode(&self, episode: Episode) -> RragResult<()> {
         let key = self.episode_key(&episode.id);
-        let value = serde_json::to_value(&episode)
-            .map_err(|e| crate::error::RragError::storage("serialize_episode", std::io::Error::new(std::io::ErrorKind::Other, e)))?;
+        let value = serde_json::to_value(&episode).map_err(|e| {
+            crate::error::RragError::storage(
+                "serialize_episode",
+                std::io::Error::new(std::io::ErrorKind::Other, e),
+            )
+        })?;
 
         self.storage.set(&key, MemoryValue::Json(value)).await?;
 
@@ -135,8 +139,12 @@ impl EpisodicMemory {
         let key = self.episode_key(episode_id);
         if let Some(value) = self.storage.get(&key).await? {
             if let Some(json) = value.as_json() {
-                let episode = serde_json::from_value(json.clone())
-                    .map_err(|e| crate::error::RragError::storage("deserialize_episode", std::io::Error::new(std::io::ErrorKind::Other, e)))?;
+                let episode = serde_json::from_value(json.clone()).map_err(|e| {
+                    crate::error::RragError::storage(
+                        "deserialize_episode",
+                        std::io::Error::new(std::io::ErrorKind::Other, e),
+                    )
+                })?;
                 return Ok(Some(episode));
             }
         }
@@ -428,13 +436,16 @@ impl EpisodicMemory {
             .map_err(|e| crate::error::RragError::rsllm_client("insight_extraction", e))?;
 
         // Parse insights (assuming one per line)
-        let insights: Vec<String> = response.content
+        let insights: Vec<String> = response
+            .content
             .lines()
             .filter(|line| !line.trim().is_empty())
             .map(|line| {
                 // Remove leading numbers/bullets
                 line.trim()
-                    .trim_start_matches(|c: char| c.is_numeric() || c == '.' || c == '-' || c == '*')
+                    .trim_start_matches(|c: char| {
+                        c.is_numeric() || c == '.' || c == '-' || c == '*'
+                    })
                     .trim()
                     .to_string()
             })
@@ -448,9 +459,24 @@ impl EpisodicMemory {
     fn extract_topics_from_text(&self, text: &str) -> Vec<String> {
         // Simple keyword extraction - look for capitalized words and common programming terms
         let common_topics = [
-            "rust", "python", "javascript", "programming", "coding", "algorithm",
-            "database", "api", "frontend", "backend", "testing", "deployment",
-            "performance", "security", "design", "architecture", "error", "debugging",
+            "rust",
+            "python",
+            "javascript",
+            "programming",
+            "coding",
+            "algorithm",
+            "database",
+            "api",
+            "frontend",
+            "backend",
+            "testing",
+            "deployment",
+            "performance",
+            "security",
+            "design",
+            "architecture",
+            "error",
+            "debugging",
         ];
 
         let text_lower = text.to_lowercase();
@@ -488,7 +514,14 @@ impl EpisodicMemory {
         }
 
         // Presence of key terms indicates importance
-        let important_terms = ["important", "critical", "urgent", "key", "essential", "decision"];
+        let important_terms = [
+            "important",
+            "critical",
+            "urgent",
+            "key",
+            "essential",
+            "decision",
+        ];
         let conv_lower = conversation.to_lowercase();
         for term in important_terms {
             if conv_lower.contains(term) {
@@ -552,20 +585,19 @@ mod tests {
 
         // Store episodes with different topics
         episodic
+            .store_episode(Episode::new("Discussed Rust").with_topics(vec!["rust".to_string()]))
+            .await
+            .unwrap();
+        episodic
             .store_episode(
-                Episode::new("Discussed Rust").with_topics(vec!["rust".to_string()])
+                Episode::new("Talked about Python").with_topics(vec!["python".to_string()]),
             )
             .await
             .unwrap();
         episodic
             .store_episode(
-                Episode::new("Talked about Python").with_topics(vec!["python".to_string()])
-            )
-            .await
-            .unwrap();
-        episodic
-            .store_episode(
-                Episode::new("Rust performance").with_topics(vec!["rust".to_string(), "performance".to_string()])
+                Episode::new("Rust performance")
+                    .with_topics(vec!["rust".to_string(), "performance".to_string()]),
             )
             .await
             .unwrap();

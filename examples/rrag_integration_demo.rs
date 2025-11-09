@@ -1,8 +1,8 @@
 //! # RRAG Integration Demo
-//! 
+//!
 //! This example demonstrates how RGraph orchestrates RRAG components to build
 //! sophisticated RAG-powered agent workflows.
-//! 
+//!
 //! Run with: `cargo run --example rrag_integration_demo`
 
 use rgraph::prelude::*;
@@ -14,7 +14,7 @@ use tokio;
 async fn main() -> RGraphResult<()> {
     // Initialize logging
     tracing_subscriber::init();
-    
+
     tracing::debug!("🔗 RRAG Integration Demo - RAG-Powered Agent Workflows");
     tracing::debug!("=====================================================\n");
 
@@ -72,7 +72,8 @@ async fn basic_rag_workflow() -> RGraphResult<()> {
             context_key: "retrieved_docs".to_string(),
             response_key: "rag_answer".to_string(),
             system_prompt: Some(
-                "You are a helpful AI assistant. Answer questions based on the provided context.".to_string()
+                "You are a helpful AI assistant. Answer questions based on the provided context."
+                    .to_string(),
             ),
             max_tokens: Some(256),
             temperature: Some(0.7),
@@ -82,15 +83,17 @@ async fn basic_rag_workflow() -> RGraphResult<()> {
     // Build the workflow graph
     let graph = GraphBuilder::new("basic_rag_workflow")
         .description("Simple RAG-powered question answering")
-        .add_node("retrieve_docs", retrieval_node).await?
-        .add_node("generate_answer", generation_node).await?
+        .add_node("retrieve_docs", retrieval_node)
+        .await?
+        .add_node("generate_answer", generation_node)
+        .await?
         .add_edge("retrieve_docs", "generate_answer")?
         .entry_points(vec![NodeId::new("retrieve_docs")])
         .build()?;
 
     // Execute the workflow
-    let initial_state = GraphState::new()
-        .with_input("user_query", "What are the benefits of machine learning?");
+    let initial_state =
+        GraphState::new().with_input("user_query", "What are the benefits of machine learning?");
 
     let result = graph.execute(initial_state).await?;
 
@@ -104,11 +107,18 @@ async fn basic_rag_workflow() -> RGraphResult<()> {
 
     if let Ok(metadata) = result.final_state.get("retrieval_metadata") {
         if let Some(meta) = metadata.as_object() {
-            tracing::debug!("📊 Retrieved {} documents", meta.get("retrieved_count").unwrap_or(&serde_json::Value::Number(serde_json::Number::from(0))));
+            tracing::debug!(
+                "📊 Retrieved {} documents",
+                meta.get("retrieved_count")
+                    .unwrap_or(&serde_json::Value::Number(serde_json::Number::from(0)))
+            );
         }
     }
 
-    tracing::debug!("⏱️  Total processing time: {:?}", result.metrics.total_duration);
+    tracing::debug!(
+        "⏱️  Total processing time: {:?}",
+        result.metrics.total_duration
+    );
 
     Ok(())
 }
@@ -155,42 +165,64 @@ async fn multi_stage_rag_pipeline() -> RGraphResult<()> {
     // Build the pipeline graph
     let graph = GraphBuilder::new("multi_stage_rag_pipeline")
         .description("Multi-stage RAG with context evaluation")
-        .add_node("initial_retrieval", retrieval_node).await?
-        .add_node("evaluate_context", evaluation_node).await?
-        .add_node("refined_generation", refined_generation).await?
+        .add_node("initial_retrieval", retrieval_node)
+        .await?
+        .add_node("evaluate_context", evaluation_node)
+        .await?
+        .add_node("refined_generation", refined_generation)
+        .await?
         .add_edge("initial_retrieval", "evaluate_context")?
         .add_edge("evaluate_context", "refined_generation")?
         .entry_points(vec![NodeId::new("initial_retrieval")])
         .build()?;
 
     // Execute the pipeline
-    let initial_state = GraphState::new()
-        .with_input("user_query", "How does quantum computing work and what are its applications?");
+    let initial_state = GraphState::new().with_input(
+        "user_query",
+        "How does quantum computing work and what are its applications?",
+    );
 
     let result = graph.execute(initial_state).await?;
 
     // Display results
-    tracing::debug!("❓ Complex Query: How does quantum computing work and what are its applications?");
-    
+    tracing::debug!(
+        "❓ Complex Query: How does quantum computing work and what are its applications?"
+    );
+
     if let Ok(relevance) = result.final_state.get("context_relevance") {
         if let Some(rel_obj) = relevance.as_object() {
             tracing::debug!("🎯 Context Quality:");
-            tracing::debug!("   - Average relevance: {:.2}", 
-                     rel_obj.get("average_score").unwrap_or(&serde_json::Value::Number(serde_json::Number::from(0))).as_f64().unwrap_or(0.0));
-            tracing::debug!("   - Relevant docs: {}", 
-                     rel_obj.get("relevant_docs_count").unwrap_or(&serde_json::Value::Number(serde_json::Number::from(0))));
+            tracing::debug!(
+                "   - Average relevance: {:.2}",
+                rel_obj
+                    .get("average_score")
+                    .unwrap_or(&serde_json::Value::Number(serde_json::Number::from(0)))
+                    .as_f64()
+                    .unwrap_or(0.0)
+            );
+            tracing::debug!(
+                "   - Relevant docs: {}",
+                rel_obj
+                    .get("relevant_docs_count")
+                    .unwrap_or(&serde_json::Value::Number(serde_json::Number::from(0)))
+            );
         }
     }
 
     if let Ok(answer) = result.final_state.get("refined_answer") {
         if let Some(text) = answer.as_string() {
-            tracing::debug!("✅ Refined Answer: {}", 
-                     text.chars().take(200).collect::<String>() + "...");
+            tracing::debug!(
+                "✅ Refined Answer: {}",
+                text.chars().take(200).collect::<String>() + "..."
+            );
         }
     }
 
     tracing::debug!("⚙️  Pipeline stages: retrieval → evaluation → generation");
-    tracing::debug!("⏱️  Total pipeline time: {:?}", result.metrics.total_duration);
+    tracing::debug!(
+        "⏱️  Total pipeline time: {:?}",
+        result.metrics.total_duration
+    );
 
     Ok(())
 }
@@ -202,7 +234,7 @@ async fn adaptive_rag_workflow() -> RGraphResult<()> {
     tracing::debug!("   - Routing decision: Direct generation");
     tracing::debug!("   - Fallback strategy: Not needed");
     tracing::debug!("⏱️  Adaptive processing: ~1.2s");
-    
+
     Ok(())
 }
 
@@ -213,7 +245,7 @@ async fn rag_multi_agent_system() -> RGraphResult<()> {
     tracing::debug!("✍️  Writing Agent: RAG-powered content generation");
     tracing::debug!("🔗 Agent coordination: Context sharing enabled");
     tracing::debug!("⏱️  Multi-agent collaboration: ~2.8s");
-    
+
     Ok(())
 }
 
@@ -225,7 +257,7 @@ async fn knowledge_aware_orchestration() -> RGraphResult<()> {
     tracing::debug!("   - Orchestration strategy: Multi-stage with validation");
     tracing::debug!("   - Confidence score: 0.92");
     tracing::debug!("⏱️  Smart orchestration: ~3.5s");
-    
+
     Ok(())
 }
 

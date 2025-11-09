@@ -13,7 +13,7 @@
 
 use rexis_llm::prelude::*;
 use rexis_llm::tool;
-use rexis_llm::tools::{Tool, ToolRegistry, ToolCall as ToolExec};
+use rexis_llm::tools::{Tool, ToolCall as ToolExec, ToolRegistry};
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
@@ -153,7 +153,8 @@ impl Agent {
             }
 
             // Add assistant response to conversation
-            self.conversation.push(ChatMessage::assistant(response.content.clone()));
+            self.conversation
+                .push(ChatMessage::assistant(response.content.clone()));
 
             return Ok(response.content);
         }
@@ -175,9 +176,11 @@ impl Agent {
             .await?;
 
         if self.config.verbose {
-            tracing::debug!("   📥 LLM Response: content='{}', tool_calls={:?}",
+            tracing::debug!(
+                "   📥 LLM Response: content='{}', tool_calls={:?}",
                 response.content,
-                response.tool_calls.as_ref().map(|t| t.len()));
+                response.tool_calls.as_ref().map(|t| t.len())
+            );
         }
 
         Ok(response)
@@ -214,7 +217,8 @@ impl Agent {
             format!("Error: {}", result.error.unwrap_or_default())
         };
 
-        self.conversation.push(ChatMessage::tool(&tool_call.id, result_content));
+        self.conversation
+            .push(ChatMessage::tool(&tool_call.id, result_content));
 
         Ok(())
     }
@@ -227,7 +231,8 @@ impl Agent {
     /// Clear conversation (keep system prompt)
     fn reset(&mut self) {
         self.conversation.clear();
-        self.conversation.push(ChatMessage::system(self.config.system_prompt.clone()));
+        self.conversation
+            .push(ChatMessage::system(self.config.system_prompt.clone()));
     }
 }
 
@@ -380,7 +385,8 @@ async fn main() -> Result<(), Box<dyn Error>> {
     tracing::debug!("   📋 Tools available to agent:");
     let tools = agent.get_tools_for_llm();
     for tool in &tools {
-        tracing::debug!("      • {}: {}",
+        tracing::debug!(
+            "      • {}: {}",
             tool["function"]["name"].as_str().unwrap(),
             tool["function"]["description"].as_str().unwrap()
         );
@@ -439,7 +445,10 @@ async fn main() -> Result<(), Box<dyn Error>> {
     tracing::debug!("\n📦 STEP 4: Conversation History");
     tracing::debug!("─────────────────────────────────────────────────────\n");
 
-    tracing::debug!("   Conversation has {} messages:", agent.get_conversation().len());
+    tracing::debug!(
+        "   Conversation has {} messages:",
+        agent.get_conversation().len()
+    );
     for (i, msg) in agent.get_conversation().iter().enumerate() {
         let role = format!("{:?}", msg.role);
         let preview = match &msg.content {

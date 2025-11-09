@@ -108,8 +108,12 @@ impl SemanticMemory {
     /// Store a fact
     pub async fn store_fact(&self, fact: Fact) -> RragResult<()> {
         let key = self.fact_key(&fact.id);
-        let value = serde_json::to_value(&fact)
-            .map_err(|e| crate::error::RragError::storage("serialize_fact", std::io::Error::new(std::io::ErrorKind::Other, e)))?;
+        let value = serde_json::to_value(&fact).map_err(|e| {
+            crate::error::RragError::storage(
+                "serialize_fact",
+                std::io::Error::new(std::io::ErrorKind::Other, e),
+            )
+        })?;
 
         self.storage.set(&key, MemoryValue::Json(value)).await
     }
@@ -119,8 +123,12 @@ impl SemanticMemory {
         let key = self.fact_key(fact_id);
         if let Some(value) = self.storage.get(&key).await? {
             if let Some(json) = value.as_json() {
-                let fact = serde_json::from_value(json.clone())
-                    .map_err(|e| crate::error::RragError::storage("deserialize_fact", std::io::Error::new(std::io::ErrorKind::Other, e)))?;
+                let fact = serde_json::from_value(json.clone()).map_err(|e| {
+                    crate::error::RragError::storage(
+                        "deserialize_fact",
+                        std::io::Error::new(std::io::ErrorKind::Other, e),
+                    )
+                })?;
                 return Ok(Some(fact));
             }
         }
@@ -268,11 +276,7 @@ impl SemanticMemory {
 
     /// Store a fact with automatic embedding generation (requires 'vector-search' feature)
     #[cfg(feature = "vector-search")]
-    pub async fn store_fact_with_embedding<P>(
-        &self,
-        mut fact: Fact,
-        provider: &P,
-    ) -> RragResult<()>
+    pub async fn store_fact_with_embedding<P>(&self, mut fact: Fact, provider: &P) -> RragResult<()>
     where
         P: EmbeddingProvider,
     {
@@ -308,7 +312,8 @@ impl SemanticMemory {
         let query_embedding = provider.embed(query).await?;
 
         // Search using embedding
-        self.vector_search(&query_embedding, limit, min_similarity).await
+        self.vector_search(&query_embedding, limit, min_similarity)
+            .await
     }
 }
 
@@ -323,8 +328,8 @@ mod tests {
         let semantic = SemanticMemory::new(storage, "test-agent".to_string());
 
         // Store a fact
-        let fact = Fact::new("user:alice", "prefers", MemoryValue::from("dark_mode"))
-            .with_confidence(0.9);
+        let fact =
+            Fact::new("user:alice", "prefers", MemoryValue::from("dark_mode")).with_confidence(0.9);
 
         let fact_id = fact.id.clone();
         semantic.store_fact(fact).await.unwrap();
@@ -344,15 +349,27 @@ mod tests {
 
         // Store multiple facts
         semantic
-            .store_fact(Fact::new("user:alice", "prefers", MemoryValue::from("dark_mode")))
+            .store_fact(Fact::new(
+                "user:alice",
+                "prefers",
+                MemoryValue::from("dark_mode"),
+            ))
             .await
             .unwrap();
         semantic
-            .store_fact(Fact::new("user:alice", "likes", MemoryValue::from("coffee")))
+            .store_fact(Fact::new(
+                "user:alice",
+                "likes",
+                MemoryValue::from("coffee"),
+            ))
             .await
             .unwrap();
         semantic
-            .store_fact(Fact::new("user:bob", "prefers", MemoryValue::from("light_mode")))
+            .store_fact(Fact::new(
+                "user:bob",
+                "prefers",
+                MemoryValue::from("light_mode"),
+            ))
             .await
             .unwrap();
 
@@ -371,15 +388,27 @@ mod tests {
 
         // Store facts
         semantic
-            .store_fact(Fact::new("user:alice", "prefers", MemoryValue::from("dark_mode")))
+            .store_fact(Fact::new(
+                "user:alice",
+                "prefers",
+                MemoryValue::from("dark_mode"),
+            ))
             .await
             .unwrap();
         semantic
-            .store_fact(Fact::new("user:bob", "prefers", MemoryValue::from("light_mode")))
+            .store_fact(Fact::new(
+                "user:bob",
+                "prefers",
+                MemoryValue::from("light_mode"),
+            ))
             .await
             .unwrap();
         semantic
-            .store_fact(Fact::new("user:alice", "likes", MemoryValue::from("coffee")))
+            .store_fact(Fact::new(
+                "user:alice",
+                "likes",
+                MemoryValue::from("coffee"),
+            ))
             .await
             .unwrap();
 

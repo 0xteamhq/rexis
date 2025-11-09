@@ -114,9 +114,7 @@ async fn demo_vector_search(storage: Arc<dyn Memory>) -> Result<(), Box<dyn std:
 
     for (subject, predicate, object) in facts {
         let fact = Fact::new(subject, predicate, MemoryValue::from(object));
-        semantic
-            .store_fact_with_embedding(fact, &provider)
-            .await?;
+        semantic.store_fact_with_embedding(fact, &provider).await?;
     }
 
     info!("Stored {} facts with embeddings", semantic.count().await?);
@@ -147,8 +145,14 @@ async fn demo_vector_search(storage: Arc<dyn Memory>) -> Result<(), Box<dyn std:
     let sim_rust = emb1.cosine_similarity(&emb2)?;
     let sim_python = emb1.cosine_similarity(&emb3)?;
 
-    info!("  Similarity (Rust programming vs Rust development): {:.3}", sim_rust);
-    info!("  Similarity (Rust programming vs Python scripting): {:.3}", sim_python);
+    info!(
+        "  Similarity (Rust programming vs Rust development): {:.3}",
+        sim_rust
+    );
+    info!(
+        "  Similarity (Rust programming vs Python scripting): {:.3}",
+        sim_python
+    );
 
     Ok(())
 }
@@ -307,7 +311,10 @@ async fn demo_memory_compression(
     let final_stats = compressor.calculate_stats(namespace).await?;
     info!("\nFinal statistics:");
     info!("  Remaining items: {}", final_stats.item_count);
-    info!("  Space saved: {} bytes", stats.total_bytes - final_stats.total_bytes);
+    info!(
+        "  Space saved: {} bytes",
+        stats.total_bytes - final_stats.total_bytes
+    );
 
     // Compression with LLM (if available)
     #[cfg(feature = "rexis-llm-client")]

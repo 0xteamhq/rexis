@@ -1,17 +1,14 @@
 //! # Evaluation Framework Demo
-//! 
+//!
 //! Demonstrates the comprehensive evaluation framework including RAGAS metrics,
 //! retrieval evaluation, generation evaluation, and end-to-end benchmarks.
 
 use rexis_rag::{
     evaluation::{
-        EvaluationService, EvaluationConfig, EvaluationData,
-        TestQuery, GroundTruth, SystemResponse, RetrievedDocument, SystemTiming,
-        ragas::RagasConfig, 
-        retrieval_eval::RetrievalEvalConfig,
-        generation_eval::GenerationEvalConfig,
-        end_to_end::EndToEndConfig,
-        benchmarks::BenchmarkEvaluator,
+        benchmarks::BenchmarkEvaluator, end_to_end::EndToEndConfig,
+        generation_eval::GenerationEvalConfig, ragas::RagasConfig,
+        retrieval_eval::RetrievalEvalConfig, EvaluationConfig, EvaluationData, EvaluationService,
+        GroundTruth, RetrievedDocument, SystemResponse, SystemTiming, TestQuery,
     },
     RragResult,
 };
@@ -25,10 +22,10 @@ async fn main() -> RragResult<()> {
     // Create comprehensive evaluation configuration
     let mut eval_config = EvaluationConfig::default();
     eval_config.output_config.output_dir = "./evaluation_results".to_string();
-    
+
     // Create evaluation service
     let mut evaluation_service = EvaluationService::new(eval_config);
-    
+
     // Demo 1: RAGAS Evaluation
     tracing::debug!("📊 Demo 1: RAGAS Metrics Evaluation");
     tracing::debug!("{}", "─".repeat(40));
@@ -53,17 +50,17 @@ async fn main() -> RragResult<()> {
     tracing::debug!("🏆 Demo 5: Standard Benchmark Evaluation");
     tracing::debug!("{}", "─".repeat(40));
     demo_benchmark_evaluation().await?;
-    
+
     // Demo 6: Complete Evaluation Pipeline
     tracing::debug!("🎪 Demo 6: Complete Evaluation Pipeline");
     tracing::debug!("{}", "─".repeat(40));
-    
+
     // Create comprehensive test data
     let evaluation_data = create_comprehensive_test_data();
-    
+
     // Run complete evaluation
     let evaluation_results = evaluation_service.evaluate(evaluation_data).await?;
-    
+
     // Display results summary
     tracing::debug!("📈 Evaluation Results Summary:");
     for (eval_type, result) in &evaluation_results {
@@ -71,14 +68,14 @@ async fn main() -> RragResult<()> {
         for (metric, score) in &result.overall_scores {
             tracing::debug!("  • {}: {:.3}", metric, score);
         }
-        
+
         if !result.summary.insights.is_empty() {
             tracing::debug!("  📝 Key Insights:");
             for insight in &result.summary.insights {
                 tracing::debug!("    - {}", insight);
             }
         }
-        
+
         if !result.summary.recommendations.is_empty() {
             tracing::debug!("  💡 Recommendations:");
             for recommendation in &result.summary.recommendations {
@@ -86,148 +83,176 @@ async fn main() -> RragResult<()> {
             }
         }
     }
-    
+
     // Export results
     tracing::debug!("\n📄 Exporting evaluation results...");
-    evaluation_service.export_results(&evaluation_results).await?;
+    evaluation_service
+        .export_results(&evaluation_results)
+        .await?;
     tracing::debug!("✅ Results exported to ./evaluation_results/");
-    
+
     tracing::debug!("\n🎉 Evaluation framework demonstration complete!");
-    
+
     Ok(())
 }
 
 async fn demo_ragas_evaluation() -> RragResult<()> {
-    use rexis_rag::evaluation::ragas::{RagasEvaluator, RagasConfig};
-    
+    use rexis_rag::evaluation::ragas::{RagasConfig, RagasEvaluator};
+
     let config = RagasConfig::default();
     let evaluator = RagasEvaluator::new(config);
-    
+
     tracing::debug!("🔧 RAGAS Configuration:");
     tracing::debug!("  • Metrics: {:?}", evaluator.get_config().metrics);
-    
+
     let test_data = create_ragas_test_data();
     let result = evaluator.evaluate(&test_data)?;
-    
+
     tracing::debug!("\n📊 RAGAS Results:");
     for (metric, score) in &result.overall_scores {
         tracing::debug!("  • {}: {:.3}", metric, score);
     }
-    
-    tracing::debug!("  📈 Total queries evaluated: {}", result.summary.total_queries);
-    tracing::debug!("  ⏱️ Evaluation time: {:.2}ms", result.summary.performance_stats.total_eval_time_ms);
-    
+
+    tracing::debug!(
+        "  📈 Total queries evaluated: {}",
+        result.summary.total_queries
+    );
+    tracing::debug!(
+        "  ⏱️ Evaluation time: {:.2}ms",
+        result.summary.performance_stats.total_eval_time_ms
+    );
+
     Ok(())
 }
 
 async fn demo_retrieval_evaluation() -> RragResult<()> {
-    use rexis_rag::evaluation::retrieval_eval::{RetrievalEvaluator, RetrievalEvalConfig};
-    
+    use rexis_rag::evaluation::retrieval_eval::{RetrievalEvalConfig, RetrievalEvaluator};
+
     let config = RetrievalEvalConfig::default();
     let evaluator = RetrievalEvaluator::new(config);
-    
+
     tracing::debug!("🔧 Retrieval Evaluation Configuration:");
     tracing::debug!("  • K values: [1, 3, 5, 10, 20]");
     tracing::debug!("  • Metrics: {:?}", evaluator.supported_metrics());
-    
+
     let test_data = create_retrieval_test_data();
     let result = evaluator.evaluate(&test_data)?;
-    
+
     tracing::debug!("\n🎯 Retrieval Results:");
     for (metric, score) in &result.overall_scores {
         tracing::debug!("  • {}: {:.3}", metric, score);
     }
-    
+
     if !result.summary.insights.is_empty() {
         tracing::debug!("\n💡 Insights:");
         for insight in &result.summary.insights {
             tracing::debug!("  - {}", insight);
         }
     }
-    
+
     Ok(())
 }
 
 async fn demo_generation_evaluation() -> RragResult<()> {
-    use rexis_rag::evaluation::generation_eval::{GenerationEvaluator, GenerationEvalConfig};
-    
+    use rexis_rag::evaluation::generation_eval::{GenerationEvalConfig, GenerationEvaluator};
+
     let config = GenerationEvalConfig::default();
     let evaluator = GenerationEvaluator::new(config);
-    
+
     tracing::debug!("🔧 Generation Evaluation Configuration:");
     tracing::debug!("  • Metrics: {:?}", evaluator.supported_metrics());
-    
+
     let test_data = create_generation_test_data();
     let result = evaluator.evaluate(&test_data)?;
-    
+
     tracing::debug!("\n✨ Generation Results:");
     for (metric, score) in &result.overall_scores {
         tracing::debug!("  • {}: {:.3}", metric, score);
     }
-    
+
     if !result.summary.recommendations.is_empty() {
         tracing::debug!("\n🔧 Recommendations:");
         for recommendation in &result.summary.recommendations {
             tracing::debug!("  - {}", recommendation);
         }
     }
-    
+
     Ok(())
 }
 
 async fn demo_end_to_end_evaluation() -> RragResult<()> {
-    use rexis_rag::evaluation::end_to_end::{EndToEndEvaluator, EndToEndConfig};
-    
+    use rexis_rag::evaluation::end_to_end::{EndToEndConfig, EndToEndEvaluator};
+
     let config = EndToEndConfig::default();
     let evaluator = EndToEndEvaluator::new(config);
-    
+
     tracing::debug!("🔧 End-to-End Evaluation Configuration:");
-    tracing::debug!("  • User Experience Weight: {:.1}", evaluator.get_config().performance.accuracy);
+    tracing::debug!(
+        "  • User Experience Weight: {:.1}",
+        evaluator.get_config().performance.accuracy
+    );
     tracing::debug!("  • Metrics: {:?}", evaluator.supported_metrics());
-    
+
     let test_data = create_e2e_test_data();
     let result = evaluator.evaluate(&test_data)?;
-    
+
     tracing::debug!("\n🚀 End-to-End Results:");
     for (metric, score) in &result.overall_scores {
         tracing::debug!("  • {}: {:.3}", metric, score);
     }
-    
-    tracing::debug!("  🔄 System Throughput: {:.1} QPS", result.summary.performance_stats.throughput_qps);
-    tracing::debug!("  💾 Peak Memory Usage: {:.1}MB", result.summary.performance_stats.peak_memory_usage_mb);
-    
+
+    tracing::debug!(
+        "  🔄 System Throughput: {:.1} QPS",
+        result.summary.performance_stats.throughput_qps
+    );
+    tracing::debug!(
+        "  💾 Peak Memory Usage: {:.1}MB",
+        result.summary.performance_stats.peak_memory_usage_mb
+    );
+
     Ok(())
 }
 
 async fn demo_benchmark_evaluation() -> RragResult<()> {
     let benchmark_evaluator = BenchmarkEvaluator::new();
-    
+
     tracing::debug!("🔧 Benchmark Configuration:");
-    tracing::debug!("  • Available Benchmarks: {:?}", benchmark_evaluator.supported_metrics());
-    
+    tracing::debug!(
+        "  • Available Benchmarks: {:?}",
+        benchmark_evaluator.supported_metrics()
+    );
+
     // Run all benchmarks
     let benchmark_results = benchmark_evaluator.run_all_benchmarks().await?;
-    
+
     tracing::debug!("\n🏆 Benchmark Results:");
     for (benchmark_name, result) in &benchmark_results {
         tracing::debug!("  • {}: {:.3}", benchmark_name, result.overall_score);
-        
+
         if !result.performance_analysis.strengths.is_empty() {
-            tracing::debug!("    ✅ Strengths: {}", result.performance_analysis.strengths.join(", "));
+            tracing::debug!(
+                "    ✅ Strengths: {}",
+                result.performance_analysis.strengths.join(", ")
+            );
         }
-        
+
         if !result.performance_analysis.weaknesses.is_empty() {
-            tracing::debug!("    ⚠️ Weaknesses: {}", result.performance_analysis.weaknesses.join(", "));
+            tracing::debug!(
+                "    ⚠️ Weaknesses: {}",
+                result.performance_analysis.weaknesses.join(", ")
+            );
         }
     }
-    
+
     // Calculate overall benchmark score
-    let overall_score: f32 = benchmark_results.values()
+    let overall_score: f32 = benchmark_results
+        .values()
         .map(|r| r.overall_score)
-        .sum::<f32>() / benchmark_results.len() as f32;
-    
+        .sum::<f32>()
+        / benchmark_results.len() as f32;
+
     tracing::debug!("\n📊 Overall Benchmark Score: {:.3}", overall_score);
-    
+
     if overall_score > 0.8 {
         tracing::debug!("🎉 Excellent performance across all benchmarks!");
     } else if overall_score > 0.6 {
@@ -235,7 +260,7 @@ async fn demo_benchmark_evaluation() -> RragResult<()> {
     } else {
         tracing::debug!("🔧 Performance needs significant improvement");
     }
-    
+
     Ok(())
 }
 
@@ -249,7 +274,8 @@ fn create_comprehensive_test_data() -> EvaluationData {
         },
         TestQuery {
             id: "q2".to_string(),
-            query: "Explain the difference between supervised and unsupervised learning".to_string(),
+            query: "Explain the difference between supervised and unsupervised learning"
+                .to_string(),
             query_type: Some("comparative".to_string()),
             metadata: HashMap::new(),
         },
@@ -260,7 +286,7 @@ fn create_comprehensive_test_data() -> EvaluationData {
             metadata: HashMap::new(),
         },
     ];
-    
+
     let ground_truth = vec![
         GroundTruth {
             query_id: "q1".to_string(),
@@ -296,7 +322,7 @@ fn create_comprehensive_test_data() -> EvaluationData {
             metadata: HashMap::new(),
         },
     ];
-    
+
     let system_responses = vec![
         SystemResponse {
             query_id: "q1".to_string(),
@@ -387,11 +413,17 @@ fn create_comprehensive_test_data() -> EvaluationData {
             metadata: HashMap::new(),
         },
     ];
-    
+
     let mut context = HashMap::new();
-    context.insert("evaluation_type".to_string(), serde_json::Value::String("comprehensive".to_string()));
-    context.insert("domain".to_string(), serde_json::Value::String("machine_learning".to_string()));
-    
+    context.insert(
+        "evaluation_type".to_string(),
+        serde_json::Value::String("comprehensive".to_string()),
+    );
+    context.insert(
+        "domain".to_string(),
+        serde_json::Value::String("machine_learning".to_string()),
+    );
+
     EvaluationData {
         queries,
         ground_truth,

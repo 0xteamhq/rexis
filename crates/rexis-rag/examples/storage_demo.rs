@@ -24,14 +24,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("--- Basic Operations ---");
 
     // Store different types of values
-    storage
-        .set("user:name", MemoryValue::from("Alice"))
-        .await?;
+    storage.set("user:name", MemoryValue::from("Alice")).await?;
     storage.set("user:age", MemoryValue::from(30i64)).await?;
+    storage.set("user:premium", MemoryValue::from(true)).await?;
     storage
-        .set("user:premium", MemoryValue::from(true))
+        .set("user:score", MemoryValue::from(95.5f64))
         .await?;
-    storage.set("user:score", MemoryValue::from(95.5f64)).await?;
 
     println!("✓ Stored 4 user values");
 
@@ -119,10 +117,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Query with namespace
     let query = MemoryQuery::new().with_namespace("session");
     let session_keys = storage.keys(&query).await?;
-    println!(
-        "✓ Found {} keys in 'session' namespace",
-        session_keys.len()
-    );
+    println!("✓ Found {} keys in 'session' namespace", session_keys.len());
     for key in &session_keys {
         println!("  - {}", key);
     }
@@ -178,7 +173,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // === Health Check ===
     let healthy = storage.health_check().await?;
-    println!("Storage health check: {}", if healthy { "✓ OK" } else { "✗ FAIL" });
+    println!(
+        "Storage health check: {}",
+        if healthy { "✓ OK" } else { "✗ FAIL" }
+    );
 
     println!("\n=== Demo Complete ===");
 

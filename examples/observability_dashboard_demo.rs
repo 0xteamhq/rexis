@@ -352,7 +352,8 @@ async fn main() -> RragResult<()> {
 
         tracing::debug!(
             "   Exported {} metrics to: {:?}",
-            export_result.record_count, export_result.file_path
+            export_result.record_count,
+            export_result.file_path
         );
         tracing::debug!("   Export status: {:?}", export_result.status);
     }
@@ -368,7 +369,9 @@ async fn main() -> RragResult<()> {
         for bottleneck in &bottleneck_analysis.bottlenecks {
             tracing::debug!(
                 "   - {}: {:.2}ms avg (Impact: {:.2})",
-                bottleneck.operation, bottleneck.average_duration_ms, bottleneck.impact_score
+                bottleneck.operation,
+                bottleneck.average_duration_ms,
+                bottleneck.impact_score
             );
         }
 

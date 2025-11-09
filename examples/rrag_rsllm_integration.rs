@@ -115,7 +115,6 @@ async fn main() -> RragResult<()> {
         tracing::debug!("⚙️  Testing pipeline integration...");
         tracing::debug!("📝 Pipeline integration would use RagPipelineBuilder in production");
         tracing::debug!("✅ Pipeline architecture verified!");
-
     }
 
     #[cfg(not(feature = "rsllm-client"))]

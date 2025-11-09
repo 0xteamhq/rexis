@@ -197,7 +197,9 @@ async fn demo_semantic_caching(cache: &mut CacheService) -> RragResult<()> {
             let similarity = calculate_similarity(query, &semantic_result.representative);
             tracing::debug!(
                 "     🎯 {} query: '{}' (similarity: {:.2})",
-                query_type, query, similarity
+                query_type,
+                query,
+                similarity
             );
             tracing::debug!(
                 "       Matched cluster: {}",
@@ -206,7 +208,8 @@ async fn demo_semantic_caching(cache: &mut CacheService) -> RragResult<()> {
         } else {
             tracing::debug!(
                 "     🆕 {} query: '{}' (new semantic entry)",
-                query_type, query
+                query_type,
+                query
             );
 
             // Create semantic cache entry

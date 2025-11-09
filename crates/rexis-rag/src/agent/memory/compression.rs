@@ -8,7 +8,7 @@ use crate::storage::{Memory, MemoryValue};
 use std::sync::Arc;
 
 #[cfg(feature = "rexis-llm-client")]
-use rexis_llm::{Client, ChatMessage};
+use rexis_llm::{ChatMessage, Client};
 
 /// Configuration for memory compression
 #[derive(Debug, Clone)]
@@ -93,8 +93,7 @@ impl MemoryCompressor {
 
     /// Check if compression is needed based on stats
     pub fn needs_compression(&self, stats: &MemoryStats) -> bool {
-        stats.total_bytes > self.config.max_size_bytes
-            || stats.item_count > self.config.max_items
+        stats.total_bytes > self.config.max_size_bytes || stats.item_count > self.config.max_items
     }
 
     /// Calculate memory statistics for a namespace
@@ -119,7 +118,7 @@ impl MemoryCompressor {
                     MemoryValue::Json(j) => j.to_string().len(),
                     MemoryValue::Bytes(b) => b.len(),
                     MemoryValue::List(items) => items.len() * 16, // rough estimate
-                    MemoryValue::Map(m) => m.len() * 32,           // rough estimate
+                    MemoryValue::Map(m) => m.len() * 32,          // rough estimate
                 };
 
                 // Try to extract timestamp from JSON values
@@ -130,7 +129,8 @@ impl MemoryCompressor {
                             oldest = Some(oldest.map_or(utc_ts, |o| o.min(utc_ts)));
                             newest = Some(newest.map_or(utc_ts, |n| n.max(utc_ts)));
                         }
-                    } else if let Some(created_str) = json.get("created_at").and_then(|v| v.as_str())
+                    } else if let Some(created_str) =
+                        json.get("created_at").and_then(|v| v.as_str())
                     {
                         if let Ok(ts) = chrono::DateTime::parse_from_rfc3339(created_str) {
                             let utc_ts = ts.with_timezone(&chrono::Utc);
@@ -277,7 +277,8 @@ impl MemoryCompressor {
                             .ok()
                             .map(|ts| ts.with_timezone(&chrono::Utc) < older_than)
                             .unwrap_or(false)
-                    } else if let Some(created_str) = json.get("created_at").and_then(|v| v.as_str())
+                    } else if let Some(created_str) =
+                        json.get("created_at").and_then(|v| v.as_str())
                     {
                         chrono::DateTime::parse_from_rfc3339(created_str)
                             .ok()
@@ -411,7 +412,10 @@ mod tests {
 
         // Remove items older than 5 days
         let cutoff = chrono::Utc::now() - chrono::Duration::days(5);
-        let deleted = compressor.remove_old_items(namespace, cutoff).await.unwrap();
+        let deleted = compressor
+            .remove_old_items(namespace, cutoff)
+            .await
+            .unwrap();
 
         assert_eq!(deleted, 1);
         assert_eq!(storage.count(Some(namespace)).await.unwrap(), 1);

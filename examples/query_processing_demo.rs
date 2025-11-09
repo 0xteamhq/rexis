@@ -96,7 +96,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                             expansion.confidence
                         );
                         if !expansion.added_terms.is_empty() {
-                            tracing::debug!("     Added terms: {}", expansion.added_terms.join(", "));
+                            tracing::debug!(
+                                "     Added terms: {}",
+                                expansion.added_terms.join(", ")
+                            );
                         }
                     }
                 }
@@ -190,7 +193,9 @@ async fn demo_classifier() -> Result<(), Box<dyn std::error::Error>> {
         let result = classifier.classify(query).await?;
         tracing::debug!(
             "  • '{}' → Intent: {:?}, Type: {:?}",
-            query, result.intent, result.query_type
+            query,
+            result.intent,
+            result.query_type
         );
     }
     Ok(())

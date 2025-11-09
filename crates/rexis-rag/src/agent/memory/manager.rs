@@ -2,10 +2,10 @@
 
 use super::config::MemoryConfig;
 use super::conversation::{generate_session_id, ConversationMemoryStore};
-use super::working::WorkingMemory;
-use super::semantic::SemanticMemory;
 use super::episodic::EpisodicMemory;
+use super::semantic::SemanticMemory;
 use super::shared::SharedKnowledgeBase;
+use super::working::WorkingMemory;
 use crate::error::RragResult;
 use crate::storage::Memory;
 use rexis_llm::ChatMessage; // Use re-exported rsllm type
@@ -169,37 +169,58 @@ impl AgentMemoryManager {
     }
 
     /// Store a value in agent-scoped memory
-    pub async fn set_agent_memory(&self, key: &str, value: impl Into<crate::storage::MemoryValue>) -> RragResult<()> {
+    pub async fn set_agent_memory(
+        &self,
+        key: &str,
+        value: impl Into<crate::storage::MemoryValue>,
+    ) -> RragResult<()> {
         let full_key = self.agent_key(key);
         self.storage.set(&full_key, value.into()).await
     }
 
     /// Get a value from agent-scoped memory
-    pub async fn get_agent_memory(&self, key: &str) -> RragResult<Option<crate::storage::MemoryValue>> {
+    pub async fn get_agent_memory(
+        &self,
+        key: &str,
+    ) -> RragResult<Option<crate::storage::MemoryValue>> {
         let full_key = self.agent_key(key);
         self.storage.get(&full_key).await
     }
 
     /// Store a value in session-scoped memory
-    pub async fn set_session_memory(&self, key: &str, value: impl Into<crate::storage::MemoryValue>) -> RragResult<()> {
+    pub async fn set_session_memory(
+        &self,
+        key: &str,
+        value: impl Into<crate::storage::MemoryValue>,
+    ) -> RragResult<()> {
         let full_key = self.session_key(key);
         self.storage.set(&full_key, value.into()).await
     }
 
     /// Get a value from session-scoped memory
-    pub async fn get_session_memory(&self, key: &str) -> RragResult<Option<crate::storage::MemoryValue>> {
+    pub async fn get_session_memory(
+        &self,
+        key: &str,
+    ) -> RragResult<Option<crate::storage::MemoryValue>> {
         let full_key = self.session_key(key);
         self.storage.get(&full_key).await
     }
 
     /// Store a value in global memory
-    pub async fn set_global_memory(&self, key: &str, value: impl Into<crate::storage::MemoryValue>) -> RragResult<()> {
+    pub async fn set_global_memory(
+        &self,
+        key: &str,
+        value: impl Into<crate::storage::MemoryValue>,
+    ) -> RragResult<()> {
         let full_key = Self::global_key(key);
         self.storage.set(&full_key, value.into()).await
     }
 
     /// Get a value from global memory
-    pub async fn get_global_memory(&self, key: &str) -> RragResult<Option<crate::storage::MemoryValue>> {
+    pub async fn get_global_memory(
+        &self,
+        key: &str,
+    ) -> RragResult<Option<crate::storage::MemoryValue>> {
         let full_key = Self::global_key(key);
         self.storage.get(&full_key).await
     }
@@ -239,8 +260,7 @@ mod tests {
     #[tokio::test]
     async fn test_memory_manager_namespacing() {
         let storage = Arc::new(InMemoryStorage::new());
-        let config = MemoryConfig::new(storage, "test-agent")
-            .with_session_id("test-session");
+        let config = MemoryConfig::new(storage, "test-agent").with_session_id("test-session");
 
         let manager = AgentMemoryManager::new(config);
 
@@ -296,8 +316,7 @@ mod tests {
     #[tokio::test]
     async fn test_conversation_integration() {
         let storage = Arc::new(InMemoryStorage::new());
-        let config = MemoryConfig::new(storage, "test-agent")
-            .with_persistence(true);
+        let config = MemoryConfig::new(storage, "test-agent").with_persistence(true);
 
         let manager = AgentMemoryManager::new(config);
 

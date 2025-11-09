@@ -89,7 +89,7 @@ pub use rexis_graph as graph;
 /// Commonly used types and traits
 pub mod prelude {
     #[cfg(feature = "llm")]
-    pub use crate::llm::{Client, ChatMessage, ChatResponse, MessageRole};
+    pub use crate::llm::{ChatMessage, ChatResponse, Client, MessageRole};
 
     #[cfg(feature = "rag")]
     pub use crate::rag::{
@@ -99,14 +99,14 @@ pub mod prelude {
 
     #[cfg(all(feature = "rag", feature = "llm"))]
     pub use crate::rag::agent::memory::{
-        AgentMemoryManager, ConversationMemoryStore, Episode, EpisodicMemory, Fact,
-        MemoryConfig, SemanticMemory, SharedKnowledgeBase, WorkingMemory,
+        AgentMemoryManager, ConversationMemoryStore, Episode, EpisodicMemory, Fact, MemoryConfig,
+        SemanticMemory, SharedKnowledgeBase, WorkingMemory,
     };
 
     #[cfg(feature = "graph")]
     pub use crate::graph::{
         core::{ExecutionContext, NodeId},
-        state::GraphState,
         nodes::{AgentNode, ConditionNode, ToolNode, TransformNode},
+        state::GraphState,
     };
 }
